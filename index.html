@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تحدي نافس</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --cs-bg: #f4f8ff;
+            --cs-surface: #ffffff;
+            --cs-primary: #5b7cfa;
+            --cs-primary-light: #eef3ff;
+            --cs-secondary: #a78bfa;
+            --cs-accent: #4fc3f7;
+            --cs-gold: #fbbf24;
+            --cs-green: #4ade80;
+            --cs-red: #f87171;
+            --cs-text: #1e293b;
+            --cs-text-muted: #64748b;
+            --cs-border: rgba(0, 0, 0, 0.06);
+            --cs-border-strong: rgba(0, 0, 0, 0.12);
+            --cs-shadow: 0 8px 30px rgba(91, 124, 250, 0.10);
+            --cs-radius: 24px;
+            --cs-radius-sm: 14px;
+            --font: 'Tajawal', sans-serif;
+            --navy: #171451;
+            --blue: #5470ad;
+            --cyan: #0c93aa;
+            --orange: #ef853d;
+            --purple: #8b5cf6;
+            --paper: #fffdfb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font);
+            background: var(--cs-bg);
+            color: var(--cs-text);
+            min-height: 100vh;
+            background-image: radial-gradient(ellipse at 10% 20%, rgba(91, 124, 250, 0.08) 0%, transparent 55%), radial-gradient(ellipse at 90% 80%, rgba(79, 195, 247, 0.06) 0%, transparent 50%), linear-gradient(145deg, #f4f8ff 0%, #eef3fe 100%);
+            display: flex;
+            flex-direction: column;
+        }
+        [hidden] { display: none !important; }
+        .game-header {
+            width: min(1320px, calc(100% - 34px));
+            margin: 14px auto 0;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--cs-border);
+            border-radius: var(--cs-radius);
+            box-shadow: var(--cs-shadow);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .game-brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit; }
+        .brand-logo-svg { height: 90px; width: auto; display: block; flex-shrink: 0; }
+        .brand-text { display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
+        .brand-text .line-1 { font-size: 1.5rem; font-weight: 900; color: var(--navy); letter-spacing: 0.5px; }
+        .brand-text .line-2 { font-size: 0.9rem; font-weight: 700; color: var(--orange); letter-spacing: 0.3px; }
+        .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .player-chip {
+            padding: 8px 16px; border-radius: 999px;
+            background: rgba(79, 195, 247, 0.15);
+            border: 1px solid rgba(79, 195, 247, 0.25);
+            font-weight: 700; font-size: .85rem; color: var(--cs-primary); cursor: default;
+        }
+        .sound-button {
+            width: 40px; height: 40px; border-radius: var(--cs-radius-sm);
+            border: 1px solid var(--cs-border);
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--cs-text-muted); font-size: 1.2rem; cursor: pointer;
+            transition: .2s; font-family: var(--font);
+        }
+        .sound-button:hover { background: var(--cs-primary-light); border-color: var(--cs-primary); color: var(--cs-primary); }
+        .login-btn {
+            padding: 9px 16px; border-radius: var(--cs-radius-sm);
+            background: var(--cs-primary-light); color: var(--cs-primary);
+            font-weight: 700; font-size: .85rem;
+            border: 1px solid rgba(91, 124, 250, 0.2);
+            cursor: pointer; font-family: var(--font); transition: .2s; text-decoration: none;
+        }
+        .login-btn.logged-in { background: rgba(248, 113, 113, 0.08); color: var(--cs-red); border-color: rgba(248, 113, 113, 0.2); }
+        .home-btn {
+            padding: 9px 16px; border-radius: var(--cs-radius-sm);
+            background: rgba(255, 255, 255, 0.6); color: var(--cs-text-muted);
+            font-weight: 700; font-size: .85rem; border: 1px solid var(--cs-border);
+            cursor: pointer; font-family: var(--font); transition: .2s; text-decoration: none;
+        }
+        .home-btn:hover { background: var(--cs-primary-light); color: var(--cs-primary); border-color: var(--cs-primary); }
+        .login-modal-overlay {
+            position: fixed; inset: 0; z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(244, 248, 255, 0.92); backdrop-filter: blur(14px); padding: 20px;
+        }
+        .login-modal-container {
+            max-width: 480px; width: 100%; background: #ffffff;
+            border-radius: var(--cs-radius); padding: 36px 32px 40px;
+            border: 1px solid var(--cs-border);
+            box-shadow: 0 8px 40px rgba(79, 195, 247, 0.25); position: relative;
+        }
+        .login-modal-container h2 { font-size: 1.8rem; color: var(--cs-text); margin-bottom: 4px; }
+        .login-modal-container p { color: var(--cs-text-muted); margin-bottom: 24px; font-size: .95rem; }
+        .login-modal-container label { display: block; color: var(--cs-text-muted); font-size: .9rem; font-weight: 700; margin-top: 16px; margin-bottom: 4px; }
+        .login-modal-container input {
+            width: 100%; padding: 12px 16px; border-radius: var(--cs-radius-sm);
+            border: 1px solid var(--cs-border); background: var(--cs-bg);
+            color: var(--cs-text); font-size: 1rem; font-family: var(--font); transition: .2s;
+        }
+        .login-modal-container input:focus { outline: none; border-color: var(--cs-primary); background: #ffffff; box-shadow: 0 0 0 4px rgba(91, 124, 250, 0.08); }
+        .login-modal-container .modal-actions { display: flex; gap: 12px; margin-top: 28px; justify-content: flex-end; }
+        .login-modal-container .modal-actions .btn-save {
+            background: linear-gradient(135deg, var(--cs-primary), #4a6cf7); color: white;
+            box-shadow: 0 4px 20px rgba(91, 124, 250, 0.3); border: 0;
+            padding: 10px 28px; border-radius: var(--cs-radius-sm);
+            font-weight: 800; cursor: pointer; font-family: var(--font); font-size: .95rem;
+        }
+        .login-modal-container .modal-actions .btn-cancel {
+            background: transparent; color: var(--cs-text-muted);
+            border: 1px solid var(--cs-border); padding: 10px 28px;
+            border-radius: var(--cs-radius-sm); font-weight: 800; cursor: pointer;
+            font-family: var(--font); font-size: .95rem;
+        }
+        .login-modal-close {
+            position: absolute; top: 16px; left: 20px; background: none; border: none;
+            color: var(--cs-text-muted); font-size: 1.6rem; cursor: pointer;
+            transition: .2s; font-family: var(--font);
+        }
+        .game-shell { width: min(1320px, calc(100% - 34px)); margin: 22px auto 20px; flex: 1; }
+        .screen { display: none; animation: fadeSlide .4s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeSlide { 0% { opacity: 0; transform: translateY(18px); } 100% { opacity: 1; transform: translateY(0); } }
+        .setup-screen.active {
+            max-width: 1100px; margin-inline: auto; padding: 34px 40px 48px;
+            border-radius: var(--cs-radius); background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px); border: 1px solid var(--cs-border);
+            box-shadow: var(--cs-shadow);
+        }
+        .setup-copy .eyebrow {
+            display: inline-block; font-size: .8rem; color: var(--cs-primary);
+            letter-spacing: 1px; background: var(--cs-primary-light);
+            padding: 2px 16px; border-radius: 99px; margin-bottom: 10px;
+        }
+        .setup-copy h1 {
+            font-size: clamp(2.2rem, 4.5vw, 3.6rem); font-weight: 900; line-height: 1.15;
+            margin: 14px 0 22px; letter-spacing: -0.5px;
+            display: flex; align-items: center; flex-wrap: wrap; gap: 4px 14px; position: relative;
+        }
+        .setup-copy h1 .title-tahaddi { color: var(--navy); font-weight: 900; }
+        .setup-copy h1 .title-nafs {
+            color: var(--purple); font-weight: 900; font-style: normal;
+            position: relative; padding: 0 2px;
+        }
+        .setup-copy h1 .title-nafs::after {
+            content: ''; position: absolute; bottom: -6px; right: 2px; left: 2px;
+            height: 5px; background: linear-gradient(90deg, var(--purple) 0%, #a78bfa 100%);
+            border-radius: 4px; opacity: 0.4;
+        }
+        .setup-copy>p {
+            color: var(--cs-text-muted); font-size: 1.05rem;
+            margin: 8px 0 28px; max-width: 700px; line-height: 1.7;
+        }
+        .setup-panel {
+            background: rgba(255, 255, 255, 0.5); border-radius: var(--cs-radius);
+            padding: 24px 28px; border: 1px solid var(--cs-border);
+        }
+        .setup-panel h2 { font-size: 1.1rem; color: var(--cs-text); margin-bottom: 14px; margin-top: 20px; }
+        .setup-panel h2:first-of-type { margin-top: 0; }
+        .grade-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 10px; }
+        .grade-card {
+            padding: 16px 14px; border-radius: var(--cs-radius-sm);
+            border: 2px solid transparent; background: var(--cs-surface);
+            text-align: center; cursor: pointer; font-weight: 700;
+            color: var(--cs-text-muted); transition: .3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            font-family: var(--font); font-size: 1rem;
+        }
+        .grade-card .grade-icon { display: flex; align-items: center; justify-content: center; margin-bottom: 6px; height: 70px; }
+        .grade-card .grade-icon svg { width: 70px; height: 70px; display: block; }
+        .grade-card:hover { background: var(--cs-primary-light); color: var(--cs-text); border-color: var(--cs-border-strong); }
+        .grade-card.selected { border-color: var(--cs-primary); background: var(--cs-primary-light); color: var(--cs-primary); box-shadow: 0 0 0 4px rgba(91, 124, 250, 0.08); }
+        .sections-container { margin-top: 12px; padding-top: 8px; border-top: 2px dashed var(--cs-border-strong); }
+        .section-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 14px; margin: 12px 0 16px;
+        }
+        .section-card {
+            padding: 18px 16px; border-radius: var(--cs-radius-sm);
+            border: 2px solid var(--cs-border); background: var(--cs-surface);
+            cursor: pointer; transition: .3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            text-align: center; font-family: var(--font); font-size: 1rem;
+        }
+        .section-card .sec-icon { font-size: 2.4rem; display: block; margin-bottom: 4px; }
+        .section-card .sec-label { font-weight: 800; color: var(--cs-text); font-size: 1.05rem; }
+        .section-card .sec-desc { font-size: .85rem; color: var(--cs-text-muted); margin-top: 4px; }
+        .section-card:hover { background: var(--cs-primary-light); border-color: var(--cs-border-strong); transform: translateY(-2px); }
+        .section-card.selected { border-color: var(--cs-secondary); background: rgba(167, 139, 250, 0.08); box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.10); }
+        .level-options { display: flex; gap: 12px; margin: 8px 0 16px; flex-wrap: wrap; }
+        .level-card {
+            flex: 1; min-width: 120px; padding: 14px 12px;
+            border: 2px solid var(--cs-border); border-radius: var(--cs-radius-sm);
+            background: var(--cs-surface); cursor: pointer; transition: .3s;
+            text-align: center; font-family: var(--font); font-size: 1rem;
+        }
+        .level-card .level-icon { display: block; font-size: 1.8rem; }
+        .level-card strong { display: block; color: var(--cs-text); }
+        .level-card small { font-size: .75rem; color: var(--cs-text-muted); }
+        .level-card:hover { background: var(--cs-primary-light); border-color: var(--cs-border-strong); }
+        .level-card.selected { border-color: var(--cs-secondary); background: rgba(167, 139, 250, 0.08); }
+        .round-options { display: flex; align-items: center; gap: 16px; margin: 10px 0 12px; flex-wrap: wrap; }
+        .round-options span { font-weight: 700; color: var(--cs-text-muted); }
+        .round-options div { display: flex; gap: 10px; flex-wrap: wrap; }
+        .round-options button {
+            padding: 8px 20px; border: 2px solid var(--cs-border);
+            border-radius: var(--cs-radius-sm); background: var(--cs-surface);
+            cursor: pointer; font-family: var(--font); font-weight: 700;
+            color: var(--cs-text-muted); transition: .3s;
+        }
+        .round-options button:hover { background: var(--cs-primary-light); border-color: var(--cs-border-strong); }
+        .round-options button.selected { border-color: var(--cs-primary); background: var(--cs-primary-light); color: var(--cs-primary); }
+        .bank-status { font-size: .9rem; color: var(--cs-text-muted); line-height: 1.7; }
+        .setup-actions { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 18px; }
+        .start-button {
+            min-height: 54px; padding: 0 40px; border: 0;
+            border-radius: var(--cs-radius-sm);
+            background: linear-gradient(135deg, var(--cs-primary), #4a6cf7);
+            color: white; font-weight: 900; font-size: 1.08rem;
+            cursor: pointer; transition: .3s;
+            box-shadow: 0 6px 28px rgba(91, 124, 250, 0.3);
+            font-family: var(--font);
+        }
+        .start-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(91, 124, 250, 0.4); }
+        .start-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .play-screen.active { max-width: 980px; margin-inline: auto; }
+        .play-topbar {
+            display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center;
+            padding: 14px 22px; background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px); border-radius: var(--cs-radius);
+            border: 1px solid var(--cs-border); box-shadow: var(--cs-shadow); margin-bottom: 16px;
+        }
+        .play-topbar .progress-copy { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .play-topbar .progress-copy span { color: var(--cs-text-muted); font-size: .9rem; }
+        .play-topbar .progress-copy strong {
+            color: var(--cs-primary); font-size: .85rem;
+            background: var(--cs-primary-light); padding: 2px 14px; border-radius: 99px;
+        }
+        .quit-button {
+            padding: 8px 18px; border-radius: var(--cs-radius-sm);
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            background: rgba(248, 113, 113, 0.06); color: var(--cs-red);
+            font-weight: 700; cursor: pointer; font-family: var(--font);
+            font-size: .85rem; transition: .2s;
+        }
+        .quit-button:hover { background: rgba(248, 113, 113, 0.12); }
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+        .stats-row article {
+            padding: 14px 18px; border-radius: var(--cs-radius-sm);
+            border: 1px solid var(--cs-border); background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px); display: flex; align-items: center;
+            justify-content: space-between; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .stats-row article span { color: var(--cs-text-muted); font-size: .85rem; }
+        .stats-row article strong { font-size: 1.5rem; color: var(--cs-text); }
+        .question-card {
+            padding: 28px 30px 34px; border-radius: var(--cs-radius);
+            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px);
+            border: 1px solid var(--cs-border); box-shadow: var(--cs-shadow);
+        }
+        .question-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: .85rem; }
+        .question-meta #questionSkill { color: var(--cs-text-muted); background: var(--cs-primary-light); padding: 2px 14px; border-radius: 99px; }
+        .question-meta #questionPoints { color: var(--cs-gold); font-weight: 700; }
+        #questionText { font-size: 1.5rem; font-weight: 800; margin: 6px 0 22px; line-height: 1.6; color: var(--cs-text); }
+        .answer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .answer-button {
+            min-height: 68px; padding: 14px 18px;
+            border: 2px solid var(--cs-border); border-radius: var(--cs-radius-sm);
+            background: var(--cs-surface); color: var(--cs-text);
+            font-weight: 700; font-size: 1.05rem; cursor: pointer;
+            transition: .25s; font-family: var(--font);
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .answer-button .answer-key {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(0, 0, 0, 0.04); color: var(--cs-text-muted);
+            font-size: .8rem; font-weight: 800; flex-shrink: 0;
+        }
+        .answer-button:hover:not(:disabled) { border-color: var(--cs-primary); background: var(--cs-primary-light); }
+        .answer-button:disabled { cursor: not-allowed; opacity: .7; }
+        .answer-button.correct { border-color: var(--cs-green); background: rgba(74, 222, 128, 0.10); }
+        .answer-button.correct .answer-key { background: var(--cs-green); color: white; }
+        .answer-button.wrong { border-color: var(--cs-red); background: rgba(248, 113, 113, 0.08); }
+        .answer-button.wrong .answer-key { background: var(--cs-red); color: white; }
+        .feedback {
+            margin-top: 20px; padding: 18px 22px;
+            border-radius: var(--cs-radius-sm);
+            background: rgba(74, 222, 128, 0.06);
+            border: 1px solid rgba(74, 222, 128, 0.15);
+        }
+        .feedback.wrong { background: rgba(248, 113, 113, 0.06); border-color: rgba(248, 113, 113, 0.15); }
+        .feedback-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+        .feedback-heading #feedbackIcon { font-size: 1.6rem; }
+        .feedback-heading #feedbackTitle { font-size: 1.1rem; color: var(--cs-text); }
+        #feedbackExplanation { color: var(--cs-text-muted); font-size: .95rem; margin: 4px 0 12px; }
+        #nextButton {
+            padding: 10px 32px; border: 0; border-radius: var(--cs-radius-sm);
+            background: linear-gradient(135deg, var(--cs-primary), #4a6cf7);
+            color: white; font-weight: 800; font-size: 1rem;
+            cursor: pointer; font-family: var(--font); transition: .3s;
+        }
+        #nextButton:hover { transform: scale(1.03); box-shadow: 0 6px 24px rgba(91, 124, 250, 0.3); }
+        .result-screen.active {
+            max-width: 820px; margin: 10px auto; padding: 44px 40px 50px;
+            text-align: center; border-radius: var(--cs-radius);
+            background: rgba(255, 255, 255, 0.80); backdrop-filter: blur(16px);
+            border: 1px solid var(--cs-border);
+            box-shadow: 0 8px 40px rgba(79, 195, 247, 0.25);
+            position: relative; overflow: hidden;
+        }
+        .confetti-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
+        .confetti-piece {
+            position: absolute; top: -20px; width: 10px; height: 10px;
+            opacity: 0.8; animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg) scale(0.3); opacity: 0; }
+        }
+        .result-badge { font-size: 4rem; display: block; margin-bottom: 4px; position: relative; z-index: 2; }
+        .result-screen h1 { font-size: 2.6rem; color: var(--cs-text); position: relative; z-index: 2; }
+        .result-screen p { color: var(--cs-text-muted); font-size: 1.1rem; position: relative; z-index: 2; }
+        .result-score { margin: 20px 0 18px; position: relative; z-index: 2; }
+        .result-score span { color: var(--cs-text-muted); font-size: .95rem; display: block; }
+        .result-score strong {
+            font-size: 3.8rem;
+            background: linear-gradient(135deg, var(--cs-gold), #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .result-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0 24px; position: relative; z-index: 2; }
+        .result-grid article {
+            padding: 16px 10px; border-radius: var(--cs-radius-sm);
+            border: 1px solid var(--cs-border); background: rgba(255, 255, 255, 0.5);
+        }
+        .result-grid article span { color: var(--cs-text-muted); font-size: .8rem; display: block; }
+        .result-grid article strong { font-size: 1.4rem; color: var(--cs-text); }
+        .result-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 10px; position: relative; z-index: 2; }
+        .secondary-action {
+            padding: 12px 28px; border-radius: var(--cs-radius-sm);
+            border: 1px solid var(--cs-border); background: transparent;
+            color: var(--cs-text-muted); font-weight: 700; cursor: pointer;
+            font-family: var(--font); font-size: 1rem; transition: .2s;
+        }
+        .secondary-action:hover { background: rgba(0, 0, 0, 0.04); color: var(--cs-text); }
+        .cert-btn { background: linear-gradient(135deg, var(--cs-gold), #f59e0b) !important; box-shadow: 0 6px 28px rgba(251, 191, 36, 0.4) !important; }
+        .toast {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            padding: 14px 32px; border-radius: var(--cs-radius-sm);
+            background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px);
+            border: 1px solid var(--cs-border); color: var(--cs-text);
+            font-weight: 700; box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+            opacity: 0; transition: .4s ease; z-index: 3000; font-family: var(--font);
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .game-footer {
+            width: min(1320px, calc(100% - 34px)); margin: 10px auto 24px;
+            padding: 18px 20px; text-align: center;
+            border-top: 1px solid var(--cs-border);
+            color: var(--cs-text-muted); font-size: .9rem; flex-shrink: 0;
+        }
+        .game-footer strong { color: var(--cs-primary); font-weight: 800; }
+        .cert-modal-overlay {
+            position: fixed; inset: 0; z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(244, 248, 255, 0.95); backdrop-filter: blur(14px); padding: 20px;
+        }
+        .cert-modal-container {
+            max-width: 860px; width: 100%; background: var(--paper);
+            border-radius: var(--cs-radius); overflow: hidden;
+            border: 3px solid var(--orange);
+            box-shadow: 0 12px 35px rgba(106, 75, 52, 0.15);
+            position: relative; padding: 24px 32px 20px; isolation: isolate;
+        }
+        .cert-modal-container::before {
+            content: ""; position: absolute; inset: 7px;
+            border: 2px solid var(--orange); border-radius: 14px; z-index: 5; pointer-events: none;
+        }
+        .cert-modal-container .shape { position: absolute; z-index: -1; border-radius: 45% 55% 50% 50%; opacity: .4; }
+        .cert-modal-container .s1 { width: 280px; height: 320px; left: -80px; top: -60px; background: #cce5f2; transform: rotate(-18deg); }
+        .cert-modal-container .s2 { width: 300px; height: 380px; left: 120px; top: -130px; background: #dcebdd; transform: rotate(18deg); }
+        .cert-modal-container .s3 { width: 320px; height: 320px; right: -100px; bottom: -80px; background: #f9d7c6; transform: rotate(15deg); }
+        .cert-modal-container .s4 { width: 240px; height: 360px; left: 180px; bottom: -220px; background: #dcebdd; transform: rotate(25deg); }
+        .cert-close-btn { display: none !important; }
+        .cert-top { display: flex; justify-content: space-between; align-items: flex-start; direction: ltr; position: relative; z-index: 6; }
+        .cert-badge {
+            direction: rtl; background: var(--navy); color: var(--orange);
+            font-size: 18px; font-weight: 700; padding: 8px 20px;
+            border: 2px solid var(--orange); border-radius: 30px;
+            box-shadow: 0 5px 10px rgba(70, 54, 34, 0.10);
+        }
+        .cert-brand { direction: rtl; display: flex; flex-direction: column; align-items: center; text-align: center; font-weight: 700; font-size: 16px; gap: 4px; }
+        .cert-logo-svg { height: 130px; width: auto; display: block; }
+        .cert-title { text-align: center; color: var(--blue); font-size: 32px; margin: 20px 0 4px; line-height: 1.2; position: relative; z-index: 6; }
+        .cert-subject { text-align: center; color: var(--cyan); font-size: 18px; font-weight: 700; margin: 0 0 20px; position: relative; z-index: 6; }
+        .cert-student {
+            width: max-content; max-width: 75%; margin: 0 auto 20px;
+            background: linear-gradient(100deg, #78c9e0, #8acfe0);
+            border-radius: 18px; color: var(--navy); padding: 8px 40px 10px;
+            font-size: 28px; font-weight: 800; box-shadow: 0 6px 0 var(--orange);
+            position: relative; z-index: 6;
+        }
+        .cert-details {
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            align-items: center; gap: 8px;
+            border: 2px dashed var(--cyan); border-radius: 16px;
+            padding: 14px 18px; background: #ffffffba;
+            font-size: 15px; color: #11123f; text-align: center;
+            position: relative; z-index: 6;
+        }
+        .cert-details span { white-space: nowrap; }
+        .cert-details b { font-size: 17px; }
+        .cert-divider { border: 0; border-top: 2px dashed var(--orange); margin: 24px 0 16px; position: relative; z-index: 6; }
+        .cert-signatures { display: flex; justify-content: space-between; padding: 0 40px; font-size: 14px; text-align: center; color: #161528; position: relative; z-index: 6; }
+        .cert-signature strong {
+            display: block; color: var(--navy); font-size: 16px;
+            margin-top: 4px; padding: 0 14px 8px;
+            border-bottom: 3px solid var(--navy); min-width: 140px;
+        }
+        .cert-footer { position: relative; z-index: 6; text-align: center; font-size: 12px; color: #181818; margin-top: 12px; }
+        .cert-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 16px; position: relative; z-index: 10; }
+        .cert-action-btn {
+            padding: 10px 24px; border-radius: 12px; border: 0;
+            font-weight: 700; font-size: 14px; cursor: pointer;
+            font-family: var(--font); transition: .3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .cert-action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); }
+        .cert-action-btn.print { background: var(--navy); color: white; }
+        .cert-action-btn.pdf { background: #e74c3c; color: white; }
+        .cert-action-btn.home { background: var(--cs-primary); color: white; }
+        @media (max-width: 800px) {
+            .brand-logo-svg { height: 70px; }
+            .brand-text .line-1 { font-size: 1.2rem; }
+            .brand-text .line-2 { font-size: 0.75rem; }
+            .setup-copy h1 { font-size: clamp(1.8rem, 4.5vw, 2.8rem); }
+            .grade-card .grade-icon { height: 60px; }
+            .grade-card .grade-icon svg { width: 60px; height: 60px; }
+            .cert-modal-container { padding: 16px 18px 14px; }
+            .cert-badge { font-size: 14px; padding: 4px 14px; }
+            .cert-brand { font-size: 13px; gap: 8px; }
+            .cert-logo-svg { height: 90px; }
+            .cert-title { font-size: 22px; margin: 12px 0 2px; }
+            .cert-subject { font-size: 14px; margin-bottom: 12px; }
+            .cert-student { font-size: 20px; padding: 6px 24px 8px; margin-bottom: 12px; }
+            .cert-details { font-size: 12px; padding: 10px 12px; gap: 6px; grid-template-columns: 1fr 1fr; }
+            .cert-details b { font-size: 13px; }
+            .cert-divider { margin: 14px 0 10px; }
+            .cert-signatures { font-size: 12px; padding: 0 16px; flex-direction: column; gap: 12px; }
+            .cert-signature strong { font-size: 13px; min-width: 100px; padding-bottom: 4px; border-width: 2px; }
+            .cert-footer { font-size: 10px; margin-top: 8px; }
+            .cert-action-btn { padding: 8px 16px; font-size: 12px; }
+        }
+        @media (max-width: 820px) {
+            .setup-screen.active { padding: 24px 18px 32px; }
+            .grade-grid { grid-template-columns: 1fr 1fr; }
+            .section-grid { grid-template-columns: 1fr 1fr; }
+            .level-options { flex-direction: column; }
+            .answer-grid { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .play-topbar { grid-template-columns: 1fr; gap: 10px; }
+            .result-grid { grid-template-columns: 1fr 1fr; }
+            .cert-details { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 520px) {
+            .brand-logo-svg { height: 55px; }
+            .brand-text .line-1 { font-size: 1rem; }
+            .brand-text .line-2 { font-size: 0.65rem; }
+            .grade-grid { grid-template-columns: 1fr; }
+            .section-grid { grid-template-columns: 1fr; }
+            .setup-actions { flex-direction: column; align-items: stretch; }
+            #questionText { font-size: 1.2rem; }
+            .result-grid { grid-template-columns: 1fr 1fr; }
+            .cert-details { grid-template-columns: 1fr; }
+            .cert-signatures { flex-direction: column; gap: 12px; padding: 0; }
+            .cert-logo-svg { height: 70px; }
+            .setup-copy h1 { font-size: 1.8rem; }
+        }
+        @media print {
+            @page { size: A4 landscape; margin: 8mm; }
+            html, body { background: white !important; min-height: 0; }
+            body * { visibility: hidden !important; }
+            #certModal { position: static !important; display: block !important; padding: 0 !important; background: transparent !important; }
+            #certificateContainer, #certificateContainer * { visibility: visible !important; }
+            #certificateContainer { position: static; width: 100%; max-width: none; height: auto;
+                box-shadow: none !important; border-radius: 0; margin: 0; padding: 12px 24px;
+                break-inside: avoid; page-break-inside: avoid; }
+            #certificateContainer .cert-actions { display: none !important; }
+            #certificateContainer::before { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="game-header">
+        <a class="game-brand" href="#">
+            <svg class="brand-logo-svg" viewBox="0 0 400 420" xmlns="http://www.w3.org/2000/svg" aria-label="شعار نافس">
+                <ellipse cx="200" cy="230" rx="165" ry="80" fill="none" stroke="#4fc3f7" stroke-width="3" transform="rotate(-12 200 230) translate(0, -25)"/>
+                <ellipse cx="200" cy="230" rx="165" ry="80" fill="none" stroke="#ef853d" stroke-width="3" transform="rotate(-12 200 230) translate(0, 25)"/>
+                <g transform="translate(75, 80) rotate(-20 45 45)">
+                    <rect x="0" y="0" width="90" height="90" rx="8" fill="#ef853d"/>
+                    <text x="45" y="68" text-anchor="middle" fill="#ffffff" font-family="Tajawal, sans-serif" font-weight="900" font-size="60">؟</text>
+                </g>
+                <circle cx="200" cy="125" r="52" fill="#4ade80"/>
+                <path d="M 175,125 L 192,143 L 230,105" stroke="#ffffff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <g transform="translate(235, 80) rotate(20 45 45)">
+                    <rect x="0" y="0" width="90" height="90" rx="8" fill="#4fc3f7"/>
+                    <text x="45" y="68" text-anchor="middle" fill="#ffffff" font-family="Tajawal, sans-serif" font-weight="900" font-size="60">!</text>
+                </g>
+                <text x="200" y="260" text-anchor="middle" fill="#2d2470" font-family="Tajawal, sans-serif" font-weight="900" font-size="72" letter-spacing="2">نافس</text>
+                <text x="200" y="340" text-anchor="middle" fill="#2d2470" font-family="Arial, sans-serif" font-weight="400" font-size="50" letter-spacing="10">NAFS</text>
+            </svg>
+            <div class="brand-text">
+                <span class="line-1">منصة نافس</span>
+                <span class="line-2">للألعاب الرياضية التفاعلية</span>
+            </div>
+        </a>
+        <div class="header-actions">
+            <span class="player-chip" id="playerChip">🧑‍🎓 زائر</span>
+            <button class="sound-button" id="soundButton" type="button">🔊</button>
+            <button class="login-btn" id="loginBtn" type="button">👤 دخول</button>
+            <button class="home-btn" id="homeBtn" type="button">🏠 الرئيسية</button>
+        </div>
+    </header>
+
+    <div class="login-modal-overlay" id="loginModal" hidden>
+        <div class="login-modal-container">
+            <button class="login-modal-close" id="loginModalClose" type="button">✕</button>
+            <h2>👋 تسجيل الدخول</h2>
+            <p>أدخلي بياناتك لتظهر في الشهادة.</p>
+            <label for="studentName">الاسم</label>
+            <input type="text" id="studentName" placeholder="مثال: ليان محمد" />
+            <label for="teacherName">اسم المعلمة</label>
+            <input type="text" id="teacherName" placeholder="أ. نوره الشمري" />
+            <label for="schoolName">اسم المدرسة</label>
+            <input type="text" id="schoolName" placeholder="مدرسة الأمل" />
+            <div class="modal-actions">
+                <button class="btn-cancel" id="loginCancelBtn" type="button">إلغاء</button>
+                <button class="btn-save" id="loginSaveBtn" type="button">💾 حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cert-modal-overlay" id="certModal" hidden>
+        <div class="cert-modal-container" id="certificateContainer">
+            <i class="shape s1"></i><i class="shape s2"></i><i class="shape s3"></i><i class="shape s4"></i>
+            <header class="cert-top">
+                <div class="cert-badge">شهادة اجتياز</div>
+                <div class="cert-brand">
+                    <svg class="cert-logo-svg" viewBox="0 0 400 420" xmlns="http://www.w3.org/2000/svg" aria-label="شعار نافس">
+                        <ellipse cx="200" cy="230" rx="165" ry="80" fill="none" stroke="#4fc3f7" stroke-width="3" transform="rotate(-12 200 230) translate(0, -25)"/>
+                        <ellipse cx="200" cy="230" rx="165" ry="80" fill="none" stroke="#ef853d" stroke-width="3" transform="rotate(-12 200 230) translate(0, 25)"/>
+                        <g transform="translate(75, 80) rotate(-20 45 45)">
+                            <rect x="0" y="0" width="90" height="90" rx="8" fill="#ef853d"/>
+                            <text x="45" y="68" text-anchor="middle" fill="#ffffff" font-family="Tajawal, sans-serif" font-weight="900" font-size="60">؟</text>
+                        </g>
+                        <circle cx="200" cy="125" r="52" fill="#4ade80"/>
+                        <path d="M 175,125 L 192,143 L 230,105" stroke="#ffffff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        <g transform="translate(235, 80) rotate(20 45 45)">
+                            <rect x="0" y="0" width="90" height="90" rx="8" fill="#4fc3f7"/>
+                            <text x="45" y="68" text-anchor="middle" fill="#ffffff" font-family="Tajawal, sans-serif" font-weight="900" font-size="60">!</text>
+                        </g>
+                        <text x="200" y="260" text-anchor="middle" fill="#2d2470" font-family="Tajawal, sans-serif" font-weight="900" font-size="72" letter-spacing="2">نافس</text>
+                        <text x="200" y="340" text-anchor="middle" fill="#2d2470" font-family="Arial, sans-serif" font-weight="400" font-size="50" letter-spacing="10">NAFS</text>
+                    </svg>
+                </div>
+            </header>
+            <h1 class="cert-title">شهادة إتقان اختبار نافس</h1>
+            <p class="cert-subject">في مادة الرياضيات</p>
+            <div class="cert-student" id="certStudentName">ليان محمد العتيبي</div>
+            <section class="cert-details" id="certDetails">
+                <span>الدرجة: <b id="certScore">٢٤ / ٣٠</b></span>
+                <span>النسبة: <b id="certPercentage">٨٠٪</b></span>
+                <span>المستوى: <b id="certLevel">متقدم</b></span>
+                <span>المرحلة: <b id="certGrade">ثالث متوسط</b></span>
+                <span>القسم: <b id="certSection">الجبر</b></span>
+            </section>
+            <hr class="cert-divider">
+            <section class="cert-signatures">
+                <div class="cert-signature">معلمة المادة<strong id="certTeacher">أ. نوره الشمري</strong></div>
+                <div class="cert-signature">المدرسة<strong id="certSchool">مدرسة الأمل</strong></div>
+            </section>
+            <footer class="cert-footer" id="certDate">صدرت بتاريخ ١٥ / ٠٧ / ١٤٤٦ هـ</footer>
+            <div class="cert-actions">
+                <button class="cert-action-btn print" id="certPrintBtn">🖨️ طباعة</button>
+                <button class="cert-action-btn pdf" id="certPdfBtn">📄 حفظ PDF</button>
+                <button class="cert-action-btn home" id="certHomeBtn">🏠 الرئيسية</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="game-shell">
+        <section class="screen setup-screen active" id="setupScreen">
+            <div class="setup-copy">
+                <span class="eyebrow">🏁 نافس للألعاب التفاعلية</span>
+                <h1>
+                    <span class="title-tahaddi">تحدي</span>
+                    <span class="title-nafs">نافس</span>
+                </h1>
+                <p>اختاري الصف، ثم القسم، ثم المستوى وعدد الأسئلة. المحرك سيولّد لك أسئلة جديدة من <strong>القوالب الذكية</strong> مع أرقام متغيرة كل مرة!</p>
+                <div class="setup-panel">
+                    <h2>📚 اختاري الصف</h2>
+                    <div class="grade-grid" id="gradeGrid">
+                        <button class="grade-card" data-grade="3" type="button">
+                            <span class="grade-icon">
+                                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <circle cx="50" cy="50" r="48" fill="#e0f2fe"/>
+                                    <circle cx="82" cy="18" r="7" fill="#fbbf24"/>
+                                    <circle cx="48" cy="42" r="13" fill="#fde68a"/>
+                                    <path d="M35 40 Q48 24 61 40 Q61 32 48 30 Q35 32 35 40" fill="#3b2a1a"/>
+                                    <circle cx="43.5" cy="42" r="1.5" fill="#1e293b"/>
+                                    <circle cx="52.5" cy="42" r="1.5" fill="#1e293b"/>
+                                    <path d="M44 47 Q48 50 52 47" stroke="#1e293b" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                                    <rect x="38" y="55" width="20" height="20" rx="3" fill="#4fc3f7"/>
+                                    <rect x="56" y="57" width="13" height="16" rx="2.5" fill="#ef853d"/>
+                                    <rect x="58" y="62" width="9" height="3" rx="1" fill="#ffffff" opacity="0.6"/>
+                                    <rect x="30" y="59" width="9" height="4" rx="2" fill="#fde68a"/>
+                                    <rect x="57" y="59" width="9" height="4" rx="2" fill="#fde68a"/>
+                                    <rect x="41" y="75" width="6" height="11" rx="2" fill="#1e40af"/>
+                                    <rect x="49" y="75" width="6" height="11" rx="2" fill="#1e40af"/>
+                                    <ellipse cx="44" cy="88" rx="5" ry="2.5" fill="#1e293b"/>
+                                    <ellipse cx="52" cy="88" rx="5" ry="2.5" fill="#1e293b"/>
+                                    <rect x="20" y="62" width="8" height="11" rx="1" fill="#4ade80"/>
+                                    <rect x="22" y="65" width="4" height="1" fill="#ffffff" opacity="0.7"/>
+                                    <rect x="22" y="68" width="4" height="1" fill="#ffffff" opacity="0.7"/>
+                                </svg>
+                            </span>
+                            <span>الثالث ابتدائي</span>
+                        </button>
+                        <button class="grade-card" data-grade="6" type="button">
+                            <span class="grade-icon">
+                                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <circle cx="50" cy="50" r="48" fill="#ede9fe"/>
+                                    <rect x="18" y="72" width="64" height="6" rx="2" fill="#a78bfa" opacity="0.3"/>
+                                    <path d="M30 62 Q35 55 45 58 L45 72 Q35 70 30 62 Z" fill="#4fc3f7"/>
+                                    <path d="M55 58 Q65 55 70 62 L70 72 Q65 70 55 72 Z" fill="#4ade80"/>
+                                    <line x1="50" y1="58" x2="50" y2="72" stroke="#ffffff" stroke-width="1"/>
+                                    <circle cx="50" cy="32" r="14" fill="#fde68a"/>
+                                    <path d="M36 30 Q38 18 50 18 Q62 18 64 30 Q64 22 50 20 Q36 22 36 30" fill="#4a2c1a"/>
+                                    <path d="M36 30 Q34 38 38 40 Q36 34 37 30" fill="#4a2c1a"/>
+                                    <path d="M64 30 Q66 38 62 40 Q64 34 63 30" fill="#4a2c1a"/>
+                                    <circle cx="45" cy="32" r="1.8" fill="#1e293b"/>
+                                    <circle cx="55" cy="32" r="1.8" fill="#1e293b"/>
+                                    <circle cx="45" cy="32" r="4" fill="none" stroke="#1e293b" stroke-width="0.8"/>
+                                    <circle cx="55" cy="32" r="4" fill="none" stroke="#1e293b" stroke-width="0.8"/>
+                                    <line x1="49" y1="32" x2="51" y2="32" stroke="#1e293b" stroke-width="0.8"/>
+                                    <path d="M46 38 Q50 41 54 38" stroke="#1e293b" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                                    <path d="M40 46 L60 46 L62 62 L38 62 Z" fill="#8b5cf6"/>
+                                    <rect x="33" y="50" width="9" height="4" rx="2" fill="#fde68a"/>
+                                    <rect x="58" y="50" width="9" height="4" rx="2" fill="#fde68a"/>
+                                </svg>
+                            </span>
+                            <span>السادس ابتدائي</span>
+                        </button>
+                        <button class="grade-card selected" data-grade="9" type="button">
+                            <span class="grade-icon">
+                                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <circle cx="50" cy="50" r="48" fill="#fef3c7"/>
+                                    <polygon points="82,15 84,21 90,21 85,25 87,31 82,27 77,31 79,25 74,21 80,21" fill="#fbbf24"/>
+                                    <rect x="35" y="14" width="30" height="6" rx="1" fill="#1e293b"/>
+                                    <polygon points="50,8 62,16 50,22 38,16" fill="#1e293b"/>
+                                    <line x1="62" y1="16" x2="68" y2="22" stroke="#ef853d" stroke-width="1.5"/>
+                                    <circle cx="68" cy="23" r="1.5" fill="#ef853d"/>
+                                    <circle cx="50" cy="38" r="13" fill="#fde68a"/>
+                                    <path d="M37 36 Q50 24 63 36 Q63 28 50 26 Q37 28 37 36" fill="#2c1810"/>
+                                    <circle cx="45" cy="38" r="1.6" fill="#1e293b"/>
+                                    <circle cx="55" cy="38" r="1.6" fill="#1e293b"/>
+                                    <path d="M45 43 Q50 46 55 43" stroke="#1e293b" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                                    <path d="M38 51 L62 51 L64 68 L36 68 Z" fill="#2d2470"/>
+                                    <polygon points="50,52 47,55 50,64 53,55" fill="#ef853d"/>
+                                    <rect x="68" y="52" width="15" height="20" rx="1.5" fill="#ffffff" stroke="#ef853d" stroke-width="1"/>
+                                    <line x1="71" y1="58" x2="80" y2="58" stroke="#a78bfa" stroke-width="0.8"/>
+                                    <line x1="71" y1="61" x2="80" y2="61" stroke="#a78bfa" stroke-width="0.8"/>
+                                    <line x1="71" y1="64" x2="78" y2="64" stroke="#a78bfa" stroke-width="0.8"/>
+                                    <circle cx="75.5" cy="67" r="1.8" fill="#fbbf24"/>
+                                    <rect x="31" y="55" width="9" height="4" rx="2" fill="#fde68a"/>
+                                    <rect x="63" y="55" width="9" height="4" rx="2" fill="#fde68a"/>
+                                </svg>
+                            </span>
+                            <span>الثالث متوسط</span>
+                        </button>
+                    </div>
+                    <div class="sections-container">
+                        <h2>🧩 الأقسام (قوالب أسئلة اختيار من متعدد)</h2>
+                        <div class="section-grid" id="sectionGrid"></div>
+                        <p class="no-sections-msg" id="noSectionsMsg" hidden>🚧 لا توجد قوالب لهذا الصف بعد.</p>
+                    </div>
+                    <h2>🎯 اختاري مستوى التحدي</h2>
+                    <div class="level-options" id="levelOptions">
+                        <button class="level-card selected" data-level="easy" type="button">
+                            <span class="level-icon">🌱</span><strong>بسيط</strong><small>مهارات أساسية</small>
+                        </button>
+                        <button class="level-card" data-level="medium" type="button">
+                            <span class="level-icon">🚀</span><strong>متوسط</strong><small>تطبيقات متنوعة</small>
+                        </button>
+                        <button class="level-card" data-level="hard" type="button">
+                            <span class="level-icon">💎</span><strong>متقدم</strong><small>تحديات مركّبة</small>
+                        </button>
+                    </div>
+                    <div class="round-options">
+                        <span>عدد الأسئلة:</span>
+                        <div id="roundOptions">
+                            <button data-rounds="5" type="button">٥ أسئلة</button>
+                            <button class="selected" data-rounds="10" type="button">١٠ أسئلة</button>
+                            <button data-rounds="15" type="button">١٥ سؤالاً</button>
+                            <button data-rounds="20" type="button">٢٠ سؤالاً</button>
+                            <button data-rounds="30" type="button">٣٠ سؤالاً</button>
+                        </div>
+                    </div>
+                    <div class="setup-actions">
+                        <button class="start-button" id="startButton" disabled>🚀 ابدأ التحدي</button>
+                        <span class="bank-status" id="bankStatus" aria-live="polite">تُولَّد أسئلة جديدة تلقائيًا في كل جولة.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="screen play-screen" id="playScreen">
+            <div class="play-topbar">
+                <div class="progress-copy"><span id="questionCounter">السؤال ١ من ١٠</span><strong id="levelLabel">القسم</strong></div>
+                <button class="quit-button" id="quitButton" type="button">✕ إنهاء</button>
+            </div>
+            <div class="stats-row">
+                <article><span>⭐ النقاط</span><strong id="scoreValue">٠</strong></article>
+                <article><span>✅ الصحيح</span><strong id="correctValue">٠ / ٠</strong></article>
+                <article><span>🔥 السلسلة</span><strong id="streakValue">٠</strong></article>
+            </div>
+            <article class="question-card">
+                <div class="question-meta"><span id="questionSkill">المهارة</span><span id="questionPoints">+١٠</span></div>
+                <h2 id="questionText">السؤال...</h2>
+                <div class="answer-grid" id="answerGrid"></div>
+                <div class="feedback" id="feedback" hidden>
+                    <div class="feedback-heading"><span id="feedbackIcon">✓</span><strong id="feedbackTitle">صحيح!</strong></div>
+                    <p id="feedbackExplanation"></p>
+                    <button id="nextButton" type="button">🔄 السؤال التالي</button>
+                </div>
+            </article>
+        </section>
+
+        <section class="screen result-screen" id="resultScreen">
+            <div class="confetti-container" id="confettiContainer"></div>
+            <span class="result-badge" id="resultBadge">🏆</span>
+            <h1 id="resultTitle">أحسنتِ!</h1>
+            <p id="resultMessage">لعبك ممتاز.</p>
+            <div class="result-score"><span>نقاطك</span><strong id="finalScore">٠</strong></div>
+            <div class="result-grid">
+                <article><span>✅ الصحيح</span><strong id="correctResult">٠ / ٠</strong></article>
+                <article><span>🎯 الدقة</span><strong id="accuracyResult">٠٪</strong></article>
+                <article><span>🔥 التتابع</span><strong id="streakResult">٠</strong></article>
+                <article><span>📊 المستوى</span><strong id="levelResult">—</strong></article>
+            </div>
+            <div class="result-actions">
+                <button class="start-button" id="replayButton" type="button">🔄 العب مجدداً</button>
+                <button class="start-button cert-btn" id="showCertButton" type="button">📜 عرض الشهادة</button>
+                <button class="secondary-action" id="backToHomeButton" type="button">🏠 الرئيسية</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="game-footer">
+        إعداد وتصميم الموقع أ/عبير القثامي © 2026
+    </footer>
+    <div class="toast" id="toast" role="status"></div>
+
+    <script>
+        /* ============================================================
+           بنك القوالب للصف الثالث الابتدائي – قوالب موسعة
+           ============================================================ */
+        const TEMPLATES_BANK = {
+            3: {
+                'sec3-1': [
+                    { id:'g3_place_ones', name:'منزلة الآحاد', template:'ما اسم منزلة الرقم {d} في العدد {n}؟', variables:{n:[100,999]}, solve:v=>'الآحاد', generateWrong:()=>['العشرات','المئات','الآلاف'], validate:v=>{const s=String(v.n);v.d=Number(s[s.length-1]);return v.d>0;}, level:'easy' },
+                    { id:'g3_place_tens', name:'منزلة العشرات', template:'ما اسم منزلة الرقم {d} في العدد {n}؟', variables:{n:[100,999]}, solve:v=>'العشرات', generateWrong:()=>['الآحاد','المئات','الآلاف'], validate:v=>{const s=String(v.n);v.d=Number(s[s.length-2]);return v.d>0;}, level:'easy' },
+                    { id:'g3_place_hundreds', name:'منزلة المئات', template:'ما اسم منزلة الرقم {d} في العدد {n}؟', variables:{n:[100,999]}, solve:v=>'المئات', generateWrong:()=>['الآحاد','العشرات','الآلاف'], validate:v=>{const s=String(v.n);v.d=Number(s[s.length-3]);return v.d>0;}, level:'easy' },
+                    { id:'g3_place_value_3d', name:'القيمة المنزلية', template:'ما قيمة الرقم {d} في العدد {n}؟', variables:{}, solve:v=>{const s=String(v.n);const i=s.indexOf(String(v.d));const p=s.length-1-i;return v.d*Math.pow(10,p);}, generateWrong:(c,v)=>[c*10,Math.round(c/10),v.d,v.n].filter(x=>x!==c&&x>0).slice(0,3), validate:v=>{v.n=randInt(100,999);v.d=randInt(1,9);const s=String(v.n);return s.includes(String(v.d));}, level:'medium' },
+                    { id:'g3_cmp_2d_easy', name:'مقارنة عددين (بسيط)', template:'ما إشارة المقارنة الصحيحة بين {a} و {b}؟', variables:{a:[10,99],b:[10,99]}, solve:v=>v.a<v.b?'<':v.a>v.b?'>':'=', generateWrong:()=>['<','>','=','لا يمكن المقارنة'], validate:v=>v.a!==v.b, level:'easy' },
+                    { id:'g3_cmp_3d_easy', name:'مقارنة عددين (مئات)', template:'ما إشارة المقارنة الصحيحة بين {a} و {b}؟', variables:{a:[100,999],b:[100,999]}, solve:v=>v.a<v.b?'<':v.a>v.b?'>':'=', generateWrong:()=>['<','>','=','لا يمكن المقارنة'], validate:v=>v.a!==v.b, level:'easy' },
+                    { id:'g3_cmp_4d_med', name:'مقارنة عددين (آلاف)', template:'ما إشارة المقارنة الصحيحة بين {a} و {b}؟', variables:{a:[1000,9999],b:[1000,9999]}, solve:v=>v.a<v.b?'<':v.a>v.b?'>':'=', generateWrong:()=>['<','>','=','لا يمكن المقارنة'], validate:v=>v.a!==v.b, level:'medium' },
+                    { id:'g3_order_3_asc', name:'ترتيب تصاعدي', template:'رتّبي الأعداد تصاعديًا: {a}، {b}، {c}', variables:{a:[10,99],b:[10,99],c:[10,99]}, solve:v=>{const arr=[v.a,v.b,v.c].sort((x,y)=>x-y);return arr.join('، ');}, generateWrong:(c,v)=>{const arr=[v.a,v.b,v.c];const opts=[arr.join('، '),[arr[2],arr[1],arr[0]].join('، '),[arr[1],arr[0],arr[2]].join('، '),[arr[0],arr[2],arr[1]].join('، ')];return shuffle([...new Set(opts)].filter(x=>x!==c)).slice(0,3);}, validate:v=>v.a!==v.b&&v.b!==v.c&&v.a!==v.c, level:'medium' },
+                    { id:'g3_order_3_desc', name:'ترتيب تنازلي', template:'رتّبي الأعداد تنازليًا: {a}، {b}، {c}', variables:{a:[100,999],b:[100,999],c:[100,999]}, solve:v=>{const arr=[v.a,v.b,v.c].sort((x,y)=>y-x);return arr.join('، ');}, generateWrong:(c,v)=>{const arr=[v.a,v.b,v.c];const opts=[arr.join('، '),[arr[2],arr[1],arr[0]].join('، '),[arr[1],arr[0],arr[2]].join('، '),[arr[0],arr[2],arr[1]].join('، ')];return shuffle([...new Set(opts)].filter(x=>x!==c)).slice(0,3);}, validate:v=>v.a!==v.b&&v.b!==v.c&&v.a!==v.c, level:'medium' },
+                    { id:'g3_which_bigger', name:'أي العددين أكبر', template:'أي العددين أكبر: {a} أم {b}؟', variables:{a:[100,999],b:[100,999]}, solve:v=>v.a>v.b?v.a:v.b, generateWrong:(c,v)=>{let w=[v.a>v.b?v.b:v.a,c+1,c-1];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:v=>v.a!==v.b, level:'easy' },
+                    { id:'g3_round_10', name:'تقريب لأقرب عشرة', template:'قرّبي العدد {a} إلى أقرب عشرة.', variables:{a:[11,99]}, solve:v=>Math.round(v.a/10)*10, generateWrong:(c,v)=>{let w=[Math.round(v.a/10)*10+10,Math.round(v.a/10)*10-10,c+1,c-1];return shuffle([...new Set(w.filter(x=>x!==c&&x>0))]).slice(0,3);}, validate:v=>v.a%10!==0, level:'easy' },
+                    { id:'g3_round_100', name:'تقريب لأقرب مئة', template:'قرّبي العدد {a} إلى أقرب مئة.', variables:{a:[105,999]}, solve:v=>Math.round(v.a/100)*100, generateWrong:(c,v)=>{let w=[c+100,c-100,c+10,c-10];return shuffle([...new Set(w.filter(x=>x!==c&&x>0))]).slice(0,3);}, validate:v=>v.a%100!==0, level:'medium' },
+                    { id:'g3_round_1000', name:'تقريب لأقرب ألف', template:'قرّبي العدد {a} إلى أقرب ألف.', variables:{a:[1100,9999]}, solve:v=>Math.round(v.a/1000)*1000, generateWrong:(c,v)=>{let w=[c+1000,c-1000,c+100,c-100];return shuffle([...new Set(w.filter(x=>x!==c&&x>0))]).slice(0,3);}, validate:v=>v.a%1000!==0, level:'hard' },
+                    { id:'g3_add_2d_1d', name:'جمع عددين (بسيط)', template:'ما ناتج {a} + {b}؟', variables:{a:[10,89],b:[2,9]}, solve:v=>v.a+v.b, generateWrong:(c)=>{let w=[c+1,c-1,c+10,c-10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_sub_2d_1d', name:'طرح عددين (بسيط)', template:'ما ناتج {a} − {b}؟', variables:{a:[20,99],b:[2,9]}, solve:v=>v.a-v.b, generateWrong:(c)=>{let w=[c+1,c-1,c+10,c-10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:v=>v.a>v.b, level:'easy' },
+                    { id:'g3_add_2d_2d', name:'جمع عددين (٢ رقم)', template:'ما ناتج {a} + {b}؟', variables:{a:[10,89],b:[10,79]}, solve:v=>v.a+v.b, generateWrong:(c)=>{let w=[c+1,c-1,c+10,c-10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_sub_2d_2d', name:'طرح عددين (٢ رقم)', template:'ما ناتج {a} − {b}؟', variables:{a:[50,99],b:[10,49]}, solve:v=>v.a-v.b, generateWrong:(c)=>{let w=[c+1,c-1,c+10,c-10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:v=>v.a>v.b, level:'easy' },
+                    { id:'g3_add_3d_3d', name:'جمع عددين (٣ رقم)', template:'ما ناتج {a} + {b}؟', variables:{a:[100,999],b:[100,999]}, solve:v=>v.a+v.b, generateWrong:(c)=>{let w=[c+1,c-1,c+10,c-10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_sub_3d_3d', name:'طرح عددين (٣ رقم)', template:'ما ناتج {a} − {b}؟', variables:{a:[300,999],b:[100,299]}, solve:v=>v.a-v.b, generateWrong:(c)=>{let w=[c+1,c-1,c+10,c-10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:v=>v.a>v.b, level:'medium' },
+                    { id:'g3_add_3nums_2d', name:'جمع ثلاثة أعداد', template:'ما ناتج {a} + {b} + {c}؟', variables:{a:[10,50],b:[10,50],c:[10,50]}, solve:v=>v.a+v.b+v.c, generateWrong:(c)=>{let w=[c+1,c-1,c+10,c-10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_add_4d', name:'جمع ٤ أرقام', template:'ما ناتج {a} + {b}؟', variables:{a:[1000,4999],b:[1000,4999]}, solve:v=>v.a+v.b, generateWrong:(c)=>{let w=[c+1,c-1,c+100,c-100];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'hard' },
+                    { id:'g3_sub_4d', name:'طرح ٤ أرقام', template:'ما ناتج {a} − {b}؟', variables:{a:[3000,9999],b:[1000,2999]}, solve:v=>v.a-v.b, generateWrong:(c)=>{let w=[c+1,c-1,c+100,c-100];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:v=>v.a>v.b, level:'hard' },
+                    { id:'g3_missing_add', name:'العدد الناقص في الجمع', template:'ما العدد الناقص: {a} + ___ = {c}؟', variables:{a:[10,50],x:[10,50]}, solve:v=>v.x, generateWrong:(c)=>{let w=[c+1,c-1,c+10,c-10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium', _fix:'c' },
+                    { id:'g3_even_odd', name:'زوجي أم فردي', template:'هل العدد {a} زوجي أم فردي؟', variables:{a:[10,99]}, solve:v=>v.a%2===0?'زوجي':'فردي', generateWrong:c=>[c==='زوجي'?'فردي':'زوجي','ليس عددًا','لا يمكن التحديد'].filter(x=>x!==c).slice(0,3), validate:()=>true, level:'easy' },
+                    { id:'g3_even_pick', name:'اختيار العدد الزوجي', template:'أي الأعداد التالية زوجي؟', variables:{dummy:[1]}, solve:()=>'٤٦', generateWrong:()=>['٣٥','٢٧','١٩'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_odd_pick', name:'اختيار العدد الفردي', template:'أي الأعداد التالية فردي؟', variables:{dummy:[1]}, solve:()=>'٣٧', generateWrong:()=>['٢٤','٤٦','٥٨'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_expanded_3d', name:'الصيغة التحليلية', template:'ما الصيغة التحليلية للعدد {a}؟', variables:{a:[100,999]}, solve:v=>{const s=String(v.a);const h=Number(s[0])*100,t=Number(s[1])*10,o=Number(s[2]);return [h,t,o].filter(x=>x>0).join(' + ');}, generateWrong:(c,v)=>{const s=String(v.a);const h=Number(s[0])*100,t=Number(s[1])*10,o=Number(s[2]);const opts=[`${h} + ${t} + ${o}`,`${h*10} + ${t} + ${o}`,`${h} + ${t*10} + ${o}`,`${h} + ${t} + ${o*10}`];return shuffle([...new Set(opts)].filter(x=>x!==c)).slice(0,3);}, validate:v=>{const s=String(v.a);return Number(s[1])>0&&Number(s[2])>0&&Number(s[0])>0;}, level:'medium' },
+                    { id:'g3_word_to_num', name:'من الكلمات إلى العدد', template:'اكتبي العدد التالي بالصيغة القياسية: {word}', variables:{n:[100,999]}, solve:v=>v.n, generateWrong:(c,v)=>{let w=[c+10,c-10,c+100,c-100,v.n+1];return shuffle([...new Set(w.filter(x=>x!==c&&x>0))]).slice(0,3);}, validate:v=>{v.word=toArabicWords(v.n);return true;}, level:'medium' },
+                    { id:'g3_add_100', name:'إضافة ١٠٠', template:'ما ناتج {a} + ١٠٠؟', variables:{a:[100,899]}, solve:v=>v.a+100, generateWrong:(c,v)=>{let w=[c+10,c-10,c-100,v.a];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_add_99', name:'إضافة ٩٩', template:'ما ناتج {a} + ٩٩؟', variables:{a:[100,900]}, solve:v=>v.a+99, generateWrong:(c,v)=>{let w=[c+1,c-1,v.a+100,v.a+98];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_sub_100', name:'طرح ١٠٠', template:'ما ناتج {a} − ١٠٠؟', variables:{a:[200,999]}, solve:v=>v.a-100, generateWrong:(c,v)=>{let w=[c+10,c-10,c+100,v.a];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:v=>v.a>100, level:'easy' }
+                ],
+                'sec3-2': [
+                    { id:'g3_mul_2_5', name:'الضرب (٢-٥)', template:'ما ناتج {a} × {b}؟', variables:{a:[2,5],b:[2,5]}, solve:v=>v.a*v.b, generateWrong:(c,v)=>{let w=[c+v.a,c+v.b,c-1,c+1];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_mul_6_9', name:'الضرب (٦-٩)', template:'ما ناتج {a} × {b}؟', variables:{a:[6,9],b:[2,9]}, solve:v=>v.a*v.b, generateWrong:(c,v)=>{let w=[c+v.a,c+v.b,c-1,c+1];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_mul_10', name:'الضرب في ١٠', template:'ما ناتج {a} × ١٠؟', variables:{a:[2,99]}, solve:v=>v.a*10, generateWrong:(c,v)=>{let w=[c+1,c-1,v.a*100,v.a];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_mul_zero', name:'الضرب في صفر', template:'ما ناتج {a} × ٠؟', variables:{a:[2,9]}, solve:()=>0, generateWrong:(c,v)=>[v.a,1,v.a*2,v.a+1].filter(x=>x!==c).slice(0,3), validate:()=>true, level:'easy' },
+                    { id:'g3_mul_one', name:'الضرب في ١', template:'ما ناتج {a} × ١؟', variables:{a:[2,99]}, solve:v=>v.a, generateWrong:(c,v)=>[v.a+1,v.a-1,v.a*2,0].filter(x=>x!==c).slice(0,3), validate:()=>true, level:'easy' },
+                    { id:'g3_div_2_5', name:'القسمة (÷٢-÷٥)', template:'ما ناتج {a} ÷ {b}؟', variables:{b:[2,5],q:[2,9]}, solve:v=>v.q, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_div_6_9', name:'القسمة (÷٦-÷٩)', template:'ما ناتج {a} ÷ {b}؟', variables:{b:[6,9],q:[2,9]}, solve:v=>v.q, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_missing_factor', name:'العامل الناقص', template:'ما العدد الناقص: {a} × ___ = {p}؟', variables:{a:[2,9],b:[2,9]}, solve:v=>v.b, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium', _fix:'p' },
+                    { id:'g3_repeated_to_mul', name:'جمع متكرر', template:'أي جملة ضرب تمثل {a} + {a} + {a} + {a}؟', variables:{a:[2,9]}, solve:v=>`٤ × ${v.a}`, generateWrong:(c,v)=>{let w=[`٣ × ${v.a}`,`٥ × ${v.a}`,`٢ × ${v.a}`,`${v.a} + ٤`];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_mul_story_boxes', name:'قصة ضرب', template:'في {a} علب، كل علبة {b} أقلام. كم قلمًا؟', variables:{a:[3,8],b:[3,9]}, solve:v=>v.a*v.b, generateWrong:(c,v)=>{let w=[c+1,c-1,v.a+v.b,c+10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_div_story', name:'قصة قسمة', template:'وزّعت المعلمة {a} قصة على {b} طالبات بالتساوي. كم تأخذ كل واحدة؟', variables:{b:[3,8],q:[3,9]}, solve:v=>v.q, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_mul_2d_1d', name:'ضرب ٢ رقم × ١ رقم', template:'ما ناتج {a} × {b}؟', variables:{a:[11,49],b:[2,9]}, solve:v=>v.a*v.b, generateWrong:(c,v)=>{let w=[c+v.a,c+v.b,c-1,c+1];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_mul_3nums', name:'ضرب ثلاثة أعداد', template:'ما ناتج {a} × {b} × {c}؟', variables:{a:[2,4],b:[2,4],c:[2,4]}, solve:v=>v.a*v.b*v.c, generateWrong:(c,v)=>{let w=[c+1,c-1,c+2,v.a+v.b+v.c];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_mul_2d_2d', name:'ضرب ٢ رقم × ٢ رقم', template:'ما ناتج {a} × {b}؟', variables:{a:[11,29],b:[11,19]}, solve:v=>v.a*v.b, generateWrong:(c)=>{let w=[c+v.a,c+v.b,c-10,c+10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'hard' },
+                    { id:'g3_mul_story_money', name:'قصة ضرب بالنقود', template:'سعر القصة {a} ريالات. كم ثمن {b} قصص؟', variables:{a:[3,15],b:[3,9]}, solve:v=>v.a*v.b, generateWrong:(c,v)=>{let w=[c+1,c-1,v.a+v.b,c+10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_div_leftover', name:'قسمة بدون باقي', template:'ما ناتج {a} ÷ {b}؟', variables:{b:[3,9],q:[5,12]}, solve:v=>v.q, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' }
+                ],
+                'sec3-3': [
+                    { id:'g3_frac_half', name:'النصف', template:'ما الكسر الذي يمثل النصف؟', variables:{dummy:[1]}, solve:()=>'١/٢', generateWrong:()=>['١/٣','١/٤','٢/٣'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_frac_third', name:'الثلث', template:'ما الكسر الذي يمثل الثلث؟', variables:{dummy:[1]}, solve:()=>'١/٣', generateWrong:()=>['١/٢','١/٤','٣/٤'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_frac_quarter', name:'الربع', template:'ما الكسر الذي يمثل الربع؟', variables:{dummy:[1]}, solve:()=>'١/٤', generateWrong:()=>['١/٢','١/٣','٣/٤'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_frac_three_quarters', name:'ثلاثة أرباع', template:'ما الكسر الذي يمثل ثلاثة أرباع؟', variables:{dummy:[1]}, solve:()=>'٣/٤', generateWrong:()=>['١/٣','٢/٤','١/٤'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_frac_pizza', name:'كسر من مجموعة', template:'قطعت البيتزا إلى {a} قطع، أكلت سارة {b}. ما الكسر؟', variables:{a:[6,10],b:[2,5]}, solve:v=>`${v.b}/${v.a}`, generateWrong:(c,v)=>{let w=[`${v.a}/${v.b}`,`${v.b}/${v.a-1}`,`${v.b+1}/${v.a}`];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:v=>v.b<v.a, level:'easy' },
+                    { id:'g3_frac_shaded', name:'الجزء المظلل', template:'إذا كان الشكل مقسمًا إلى {a} أجزاء متساوية، وظُلّل منها {b}. ما الكسر المظلل؟', variables:{a:[4,10],b:[1,3]}, solve:v=>`${v.b}/${v.a}`, generateWrong:(c,v)=>{let w=[`${v.a}/${v.b}`,`${v.b+1}/${v.a}`,`${v.b}/${v.a+1}`];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:v=>v.b<v.a, level:'easy' },
+                    { id:'g3_frac_compare_unit', name:'مقارنة كسور الوحدة', template:'قارني: ١/{a} ___ ١/{b}', variables:{a:[2,5],b:[3,8]}, solve:v=>v.a<v.b?'>':v.a>v.b?'<':'=', generateWrong:()=>['<','>','=','لا يمكن'], validate:v=>v.a!==v.b, level:'easy' },
+                    { id:'g3_frac_equiv_half', name:'كسر مكافئ للنصف', template:'ما الكسر المكافئ لـ ١/٢؟', variables:{dummy:[1]}, solve:()=>'٢/٤', generateWrong:()=>['١/٣','٣/٤','١/٤'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_frac_equiv_gen', name:'كسر مكافئ', template:'ما الكسر المكافئ لـ {a}/{b}؟', variables:{a:[1,2],b:[2,4]}, solve:v=>`${v.a*2}/${v.b*2}`, generateWrong:(c,v)=>{let w=[`${v.a}/${v.b*2}`,`${v.a*2}/${v.b}`,`${v.a+1}/${v.b+1}`];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:v=>v.a<v.b, level:'medium' },
+                    { id:'g3_frac_add_same', name:'جمع كسور متشابهة', template:'ما ناتج ١/{a} + ١/{a}؟', variables:{a:[3,8]}, solve:v=>`٢/${v.a}`, generateWrong:(c,v)=>{let w=[`١/${v.a*2}`,`٢/${v.a*2}`,`١/${v.a}`];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_frac_bigger', name:'أي كسر أكبر', template:'أي كسر أكبر: ١/{a} أم ١/{b}؟', variables:{a:[2,5],b:[3,8]}, solve:v=>v.a<v.b?`١/${v.a}`:`١/${v.b}`, generateWrong:(c,v)=>{let w=[c===`١/${v.a}`?`١/${v.b}`:`١/${v.a}`,'متساويان','لا يمكن المقارنة'];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:v=>v.a!==v.b, level:'medium' },
+                    { id:'g3_frac_left_cake', name:'الكسر الباقي', template:'قسمت الكعكة إلى {a} أجزاء، أكلت هند جزءًا واحدًا. ما الكسر الباقي؟', variables:{a:[3,8]}, solve:v=>`${v.a-1}/${v.a}`, generateWrong:(c,v)=>{let w=[`١/${v.a}`,`${v.a-2}/${v.a}`,`${v.a}/${v.a}`];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:v=>v.a>1, level:'medium' },
+                    { id:'g3_frac_order', name:'ترتيب كسور', template:'رتّبي من الأصغر إلى الأكبر: ١/٢، ١/٥، ١/٣', variables:{dummy:[1]}, solve:()=>'١/٥، ١/٣، ١/٢', generateWrong:()=>['١/٢، ١/٣، ١/٥','١/٣، ١/٢، ١/٥','١/٥، ١/٢، ١/٣'], validate:()=>true, isStatic:true, level:'hard' },
+                    { id:'g3_frac_of_set', name:'كسر من مجموعة', template:'مع دنيا {a} كرات، {b} منها حمراء. ما الكسر الذي يمثل الكرات الحمراء؟', variables:{a:[4,10],b:[1,3]}, solve:v=>`${v.b}/${v.a}`, generateWrong:(c,v)=>{let w=[`${v.a}/${v.b}`,`${v.b+1}/${v.a}`,`${v.b}/${v.a+1}`];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:v=>v.b<v.a, level:'medium' }
+                ],
+                'sec3-4': [
+                    { id:'g3_pattern_add2', name:'نمط +٢', template:'ما العدد التالي: {a}، {b}، {c}، ...؟', variables:{start:[1,8],step:[2,2]}, solve:v=>v.start+v.step*3, generateWrong:(c,v)=>[v.start+v.step*2,v.start+v.step*4,c+2,c-2].filter(x=>x!==c&&x>0).slice(0,3), validate:()=>true, level:'easy', _fix:'patternSimple' },
+                    { id:'g3_pattern_add5', name:'نمط +٥', template:'ما العدد التالي: ٥، ١٠، ١٥، ...؟', variables:{dummy:[1]}, solve:()=>20, generateWrong:()=>[25,18,30,22], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_pattern_add10', name:'نمط +١٠', template:'ما العدد التالي: ١٠، ٢٠، ٣٠، ...؟', variables:{dummy:[1]}, solve:()=>40, generateWrong:()=>[50,35,45,25], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_pattern_odd', name:'أعداد فردية', template:'ما العدد التالي: ١، ٣، ٥، ٧، ...؟', variables:{dummy:[1]}, solve:()=>9, generateWrong:()=>[8,10,11,12], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_pattern_even', name:'أعداد زوجية', template:'ما العدد التالي: ٢، ٤، ٦، ٨، ...؟', variables:{dummy:[1]}, solve:()=>10, generateWrong:()=>[9,11,12,14], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_pattern_add3', name:'نمط +٣', template:'ما العدد التالي: ٣، ٦، ٩، ...؟', variables:{dummy:[1]}, solve:()=>12, generateWrong:()=>[10,11,13,15], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_pattern_add100', name:'نمط +١٠٠', template:'ما العدد التالي: ١٠٠، ٢٠٠، ٣٠٠، ...؟', variables:{dummy:[1]}, solve:()=>400, generateWrong:()=>[350,500,250,450], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_pattern_add1000', name:'نمط +١٠٠٠', template:'ما العدد التالي: ١٠٠٠، ٢٠٠٠، ٣٠٠٠، ...؟', variables:{dummy:[1]}, solve:()=>4000, generateWrong:()=>[3500,5000,2500,4500], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_pattern_double', name:'نمط المضاعفة', template:'ما العدد التالي: {a}، {b}، {c}، ...؟ (كل عدد ضعف الذي قبله)', variables:{start:[2,5]}, solve:v=>v.start*8, generateWrong:(c,v)=>[v.start*6,v.start*10,c+2,c-2].filter(x=>x!==c).slice(0,3), validate:()=>true, level:'medium', _fix:'patternDouble' },
+                    { id:'g3_pattern_minus10', name:'نمط −١٠', template:'أكملي: ١٠٠، ٩٠، ٨٠، ...؟', variables:{dummy:[1]}, solve:()=>70, generateWrong:()=>[60,75,90,50], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_pattern_minus5', name:'نمط −٥', template:'أكملي: ٥٠، ٤٥، ٤٠، ...؟', variables:{dummy:[1]}, solve:()=>35, generateWrong:()=>[30,38,42,45], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_pattern_missing', name:'العدد الناقص في النمط', template:'ما العدد الناقص: {a}، {b}، ___، {d}؟', variables:{start:[2,5],step:[2,4]}, solve:v=>v.start+v.step*2, generateWrong:(c,v)=>[v.start+v.step,c+2,c-2].filter(x=>x!==c).slice(0,3), validate:()=>true, level:'medium', _fix:'patternMissing' },
+                    { id:'g3_pattern_rule', name:'قاعدة النمط', template:'ما القاعدة في النمط: ١٠، ٢٠، ٣٠، ٤٠؟', variables:{dummy:[1]}, solve:()=>'نزيد ١٠', generateWrong:()=>['نزيد ٥','نطرح ١٠','نضرب في ٢'], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_equation_box_add', name:'معادلة بسيطة', template:'إذا كان ▢ + {a} = {b}، فما ▢؟', variables:{a:[3,9],x:[5,15]}, solve:v=>v.x, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium', _fix:'equationAdd' },
+                    { id:'g3_equation_box_sub', name:'معادلة الطرح', template:'إذا كان ▲ − {a} = {b}، فما ▲؟', variables:{a:[3,9],x:[5,15]}, solve:v=>v.x+v.a, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium', _fix:'equationSub' },
+                    { id:'g3_equation_star_mul', name:'معادلة الضرب', template:'ما قيمة ★ إذا كان ★ × {a} = {p}؟', variables:{a:[2,6],x:[2,8]}, solve:v=>v.x, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium', _fix:'equationMul' }
+                ],
+                'sec3-5': [
+                    { id:'g3_sides_triangle', name:'أضلاع المثلث', template:'كم عدد أضلاع المثلث؟', variables:{dummy:[1]}, solve:()=>3, generateWrong:()=>[4,5,6,2], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_sides_square', name:'أضلاع المربع', template:'كم عدد أضلاع المربع؟', variables:{dummy:[1]}, solve:()=>4, generateWrong:()=>[3,5,6,2], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_sides_rect', name:'أضلاع المستطيل', template:'كم عدد أضلاع المستطيل؟', variables:{dummy:[1]}, solve:()=>4, generateWrong:()=>[3,5,6,2], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_sides_pent', name:'الشكل الخماسي', template:'كم عدد أضلاع الشكل الخماسي؟', variables:{dummy:[1]}, solve:()=>5, generateWrong:()=>[4,6,3,7], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_sides_hex', name:'الشكل السداسي', template:'كم عدد أضلاع الشكل السداسي؟', variables:{dummy:[1]}, solve:()=>6, generateWrong:()=>[5,7,4,8], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_circle_sides', name:'أضلاع الدائرة', template:'أي شكل ليس له أضلاع؟', variables:{dummy:[1]}, solve:()=>'الدائرة', generateWrong:()=>['المربع','المثلث','المستطيل'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_equal_sides', name:'أضلاع متساوية', template:'أي شكل له ٤ أضلاع متساوية؟', variables:{dummy:[1]}, solve:()=>'المربع', generateWrong:()=>['المستطيل','المثلث','الدائرة'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_rect_not_equal', name:'المستطيل', template:'أي شكل له ٤ أضلاع لكن غير متساوية؟', variables:{dummy:[1]}, solve:()=>'المستطيل', generateWrong:()=>['المربع','المعين','الدائرة'], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_angles_triangle', name:'زوايا المثلث', template:'كم عدد زوايا المثلث؟', variables:{dummy:[1]}, solve:()=>3, generateWrong:()=>[4,5,6,2], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_angles_square', name:'زوايا المربع', template:'كم عدد زوايا المربع؟', variables:{dummy:[1]}, solve:()=>4, generateWrong:()=>[3,5,6,2], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_cube_faces', name:'أوجه المكعب', template:'كم عدد أوجه المكعب؟', variables:{dummy:[1]}, solve:()=>6, generateWrong:()=>[4,8,12,5], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_cylinder_faces', name:'أوجه الأسطوانة', template:'ما الشكل الذي له وجهان دائريان؟', variables:{dummy:[1]}, solve:()=>'الأسطوانة', generateWrong:()=>['المكعب','المخروط','الكرة'], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_cone', name:'شكل مخروطي', template:'ما الشكل الذي له قاعدة دائرية ورأس واحد؟', variables:{dummy:[1]}, solve:()=>'المخروط', generateWrong:()=>['الأسطوانة','المكعب','الكرة'], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_sphere', name:'الشكل الكروي', template:'أي شكل يشبه الكرة؟', variables:{dummy:[1]}, solve:()=>'الكرة', generateWrong:()=>['المكعب','الأسطوانة','المخروط'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_cube_name', name:'اسم المجسم', template:'ما اسم المجسم الذي له ٦ أوجه متساوية؟', variables:{dummy:[1]}, solve:()=>'المكعب', generateWrong:()=>['الكرة','الأسطوانة','المخروط'], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_parallel', name:'خطوط متوازية', template:'ما نوع الخطين في الشكل التالي: خطان لا يتقاطعان أبدًا؟', variables:{dummy:[1]}, solve:()=>'متوازيان', generateWrong:()=>['متعامدان','متقاطعان','متساويان'], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_perpendicular', name:'خطوط متعامدة', template:'ما نوع الخطين في الشكل التالي: خطان يتقاطعان ويكوّنان زاوية قائمة؟', variables:{dummy:[1]}, solve:()=>'متعامدان', generateWrong:()=>['متوازيان','متقاطعان','متساويان'], validate:()=>true, isStatic:true, level:'medium' }
+                ],
+                'sec3-6': [
+                    { id:'g3_perimeter_square_easy', name:'محيط المربع', template:'مربع طول ضلعه {a} سم، ما محيطه؟', variables:{a:[2,9]}, solve:v=>v.a*4, generateWrong:(c,v)=>{let w=[c+v.a,c-v.a,v.a*3,v.a*5];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_perimeter_square_med', name:'محيط مربع (أرقام أكبر)', template:'مربع طول ضلعه {a} سم، ما محيطه؟', variables:{a:[10,25]}, solve:v=>v.a*4, generateWrong:(c,v)=>{let w=[c+v.a,c-v.a,v.a*3,v.a*5];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_perimeter_rect_easy', name:'محيط المستطيل', template:'مستطيل طوله {a} سم وعرضه {b} سم، ما محيطه؟', variables:{a:[3,10],b:[2,8]}, solve:v=>2*(v.a+v.b), generateWrong:(c,v)=>{let w=[c+1,c-1,v.a+v.b,v.a*v.b];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_perimeter_rect_med', name:'محيط مستطيل (أرقام أكبر)', template:'مستطيل طوله {a} سم وعرضه {b} سم، ما محيطه؟', variables:{a:[11,30],b:[5,20]}, solve:v=>2*(v.a+v.b), generateWrong:(c,v)=>{let w=[c+1,c-1,v.a+v.b,v.a*v.b];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_area_square_easy', name:'مساحة المربع', template:'مربع طول ضلعه {a} سم، ما مساحته؟', variables:{a:[2,9]}, solve:v=>v.a*v.a, generateWrong:(c,v)=>{let w=[c+v.a,c-v.a,v.a*2,v.a*3];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_area_square_med', name:'مساحة مربع (أرقام أكبر)', template:'مربع طول ضلعه {a} سم، ما مساحته؟', variables:{a:[10,20]}, solve:v=>v.a*v.a, generateWrong:(c,v)=>{let w=[c+v.a,c-v.a,v.a*2,v.a*3];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_area_rect_easy', name:'مساحة المستطيل', template:'مستطيل طوله {a} سم وعرضه {b} سم، ما مساحته؟', variables:{a:[3,10],b:[2,8]}, solve:v=>v.a*v.b, generateWrong:(c,v)=>{let w=[c+1,c-1,v.a+v.b,c+v.a];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_area_rect_med', name:'مساحة مستطيل (أرقام أكبر)', template:'مستطيل طوله {a} سم وعرضه {b} سم، ما مساحته؟', variables:{a:[11,30],b:[5,15]}, solve:v=>v.a*v.b, generateWrong:(c,v)=>{let w=[c+1,c-1,v.a+v.b,c+v.a];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_perimeter_triangle', name:'محيط المثلث', template:'مثلث أضلاعه {a} و {b} و {c}، ما محيطه؟', variables:{a:[3,8],b:[4,10],c:[5,12]}, solve:v=>v.a+v.b+v.c, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_area_composite', name:'مساحة شكل مركب', template:'مستطيل مقسم إلى مربعين، مساحة المربع الأول {a} سم² والثاني {b} سم². ما مساحة الشكل كاملًا؟', variables:{a:[4,20],b:[4,20]}, solve:v=>v.a+v.b, generateWrong:(c,v)=>{let w=[c+1,c-1,v.a*v.b,c+2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'hard' }
+                ],
+                'sec3-7': [
+                    { id:'g3_cm_to_m', name:'سم إلى متر', template:'كم سنتيمترًا في {a} متر؟', variables:{a:[1,5]}, solve:v=>v.a*100, generateWrong:(c,v)=>{let w=[c+10,c-10,v.a*10,v.a*1000];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_m_to_cm', name:'متر إلى سم', template:'كم مترًا في {a} سنتيمتر؟', variables:{a:[1,5]}, solve:v=>v.a, generateWrong:(c,v)=>{let w=[c+1,c-1,v.a*10,v.a*100];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_km_to_m', name:'كلم إلى متر', template:'كم مترًا في {a} كيلومتر؟', variables:{a:[1,3]}, solve:v=>v.a*1000, generateWrong:(c,v)=>{let w=[c+100,c-100,v.a*100,v.a*10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'hard' },
+                    { id:'g3_g_to_kg', name:'جرام إلى كجم', template:'كم جرامًا في {a} كيلوجرام؟', variables:{a:[1,4]}, solve:v=>v.a*1000, generateWrong:(c,v)=>{let w=[c+100,c-100,v.a*100,v.a*10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_ml_to_l', name:'مل إلى لتر', template:'كم ملليلترًا في {a} لتر؟', variables:{a:[1,4]}, solve:v=>v.a*1000, generateWrong:(c,v)=>{let w=[c+100,c-100,v.a*100,v.a*10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_time_min_hr', name:'دقائق إلى ساعات', template:'كم دقيقة في {a} ساعات؟', variables:{a:[1,4]}, solve:v=>v.a*60, generateWrong:(c,v)=>{let w=[c+30,c-30,v.a*30,v.a*90];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_time_hr_day', name:'ساعات في اليوم', template:'كم ساعة في اليوم؟', variables:{dummy:[1]}, solve:()=>24, generateWrong:()=>[12,60,30,48], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_time_min_half', name:'دقائق نصف ساعة', template:'كم دقيقة في نصف ساعة؟', variables:{dummy:[1]}, solve:()=>30, generateWrong:()=>[60,15,45,20], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_time_min_quarter', name:'دقائق ربع ساعة', template:'كم دقيقة في ربع ساعة؟', variables:{dummy:[1]}, solve:()=>15, generateWrong:()=>[30,60,20,45], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_unit_length', name:'وحدة الطول', template:'ما الوحدة المناسبة لقياس طول الكتاب؟', variables:{dummy:[1]}, solve:()=>'سنتيمتر', generateWrong:()=>['متر','كيلومتر','كيلوجرام'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_unit_mass', name:'وحدة الكتلة', template:'ما الوحدة المناسبة لقياس كتلة التفاحة؟', variables:{dummy:[1]}, solve:()=>'جرام', generateWrong:()=>['كيلوجرام','متر','لتر'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_unit_volume', name:'وحدة السعة', template:'ما الوحدة المناسبة لقياس كمية الماء في الزجاجة؟', variables:{dummy:[1]}, solve:()=>'ملليلتر', generateWrong:()=>['جرام','متر','سنتيمتر'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_unit_km', name:'وحدة المسافات', template:'ما الوحدة المناسبة لقياس المسافة بين مدينتين؟', variables:{dummy:[1]}, solve:()=>'الكيلومتر', generateWrong:()=>['المتر','السنتيمتر','الملليلتر'], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g3_convert_mixed', name:'تحويل مختلط', template:'كم سنتيمترًا في نصف متر؟', variables:{dummy:[1]}, solve:()=>50, generateWrong:()=>[5,500,100,150], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_convert_kg_g', name:'تحويل كجم إلى جم', template:'كم جرامًا في ٣ كيلوجرامات؟', variables:{dummy:[1]}, solve:()=>3000, generateWrong:()=>[300,30,30000,300], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_convert_ml_l', name:'تحويل لتر إلى مل', template:'كم ملليلترًا في ٢ لتر؟', variables:{dummy:[1]}, solve:()=>2000, generateWrong:()=>[200,20,20000,2500], validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g3_add_lengths', name:'جمع أطوال', template:'قطعة قماش طولها {a} سم، وأخرى طولها {b} سم. ما الطول الكلي؟', variables:{a:[15,60],b:[10,40]}, solve:v=>v.a+v.b, generateWrong:(c)=>{let w=[c+1,c-1,c+10,c-10];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' }
+                ],
+                'sec3-8': [
+                    { id:'g3_data_sum_2', name:'مجموع قيمتين', template:'إذا كان عدد الطالبات {a} والطلاب {b}، فما المجموع؟', variables:{a:[10,30],b:[8,25]}, solve:v=>v.a+v.b, generateWrong:(c,v)=>{let w=[c+1,c-1,Math.abs(v.a-v.b),c+2];return shuffle(w.filter(x=>x!==c&&x>=0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_data_sum_3', name:'مجموع ثلاث قيم', template:'ما مجموع: {a} + {b} + {c}؟', variables:{a:[3,15],b:[4,18],c:[5,20]}, solve:v=>v.a+v.b+v.c, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g3_data_diff', name:'الفرق بين قيمتين', template:'إذا كان عدد الكتب {a} والدفاتر {b}، فما الفرق بينهما؟', variables:{a:[10,30],b:[5,25]}, solve:v=>Math.abs(v.a-v.b), generateWrong:(c,v)=>{let w=[v.a+v.b,c+1,c-1,c+2];return shuffle(w.filter(x=>x!==c&&x>=0)).slice(0,3);}, validate:v=>v.a!==v.b, level:'medium' },
+                    { id:'g3_data_most', name:'الأكثر', template:'التفاح {a}، الموز {b}، البرتقال {c}. ما الفاكهة الأكثر؟', variables:{a:[3,10],b:[2,8],c:[5,12]}, solve:v=>v.c>v.a&&v.c>v.b?'البرتقال':(v.a>v.b?'التفاح':'الموز'), generateWrong:()=>['التفاح','الموز','البرتقال','متساويان'], validate:()=>true, level:'medium' },
+                    { id:'g3_data_least', name:'الأقل', template:'التفاح {a}، الموز {b}، البرتقال {c}. ما الفاكهة الأقل؟', variables:{a:[5,12],b:[2,4],c:[6,15]}, solve:v=>v.b<v.a&&v.b<v.c?'الموز':(v.a<v.c?'التفاح':'البرتقال'), generateWrong:()=>['التفاح','الموز','البرتقال','متساويان'], validate:()=>true, level:'medium' },
+                    { id:'g3_data_sum_4', name:'مجموع أربع قيم', template:'ما مجموع: {a} + {b} + {c} + {d}؟', variables:{a:[5,15],b:[4,18],c:[6,20],d:[8,22]}, solve:v=>v.a+v.b+v.c+v.d, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_data_avg', name:'المتوسط', template:'ما متوسط الأعداد: {a}، {b}، {c}؟', variables:{a:[5,15],b:[10,20],c:[15,25]}, solve:v=>Math.round((v.a+v.b+v.c)/3), generateWrong:(c,v)=>{let w=[c+1,c-1,Math.round((v.a+v.b)/2),c+2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_data_avg4', name:'متوسط ٤ أعداد', template:'ما متوسط الأعداد: {a}، {b}، {c}، {d}؟', variables:{a:[4,20],b:[6,22],c:[8,24],d:[10,26]}, solve:v=>Math.round((v.a+v.b+v.c+v.d)/4), generateWrong:(c,v)=>{let w=[c+1,c-1,Math.round((v.a+v.b)/2),c+2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'hard' },
+                    { id:'g3_data_classes', name:'حساب المجموع', template:'إذا كان عدد الفصول {a}، وكل فصل {b} طالبة، فما المجموع؟', variables:{a:[2,5],b:[15,25]}, solve:v=>v.a*v.b, generateWrong:(c,v)=>{let w=[v.a+v.b,c+1,c-1,c+2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g3_data_table_sum', name:'مجموع جدول', template:'في الجدول: قلم {a}، مسطرة {b}، ممحاة {c}. ما المجموع؟', variables:{a:[4,10],b:[3,9],c:[2,8]}, solve:v=>v.a+v.b+v.c, generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' }
+                ]
+            },
+            6: {
+                'sec6-1': [
+                    { id:'g6_gcf_easy', name:'العامل المشترك الأكبر', template:'ما هو العامل المشترك الأكبر للعددين {a} و {b}؟', variables:{a:[12,24],b:[18,30]}, solve:v=>{let g=1;for(let i=1;i<=Math.min(v.a,v.b);i++){if(v.a%i===0&&v.b%i===0)g=i;}return g;}, generateWrong:(c)=>{let w=[c+1,c-1,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g6_lcm_easy', name:'المضاعف المشترك الأصغر', template:'ما هو المضاعف المشترك الأصغر للعددين {a} و {b}؟', variables:{a:[2,6],b:[3,8]}, solve:v=>{let l=1;for(let i=Math.max(v.a,v.b);i<=v.a*v.b;i++){if(i%v.a===0&&i%v.b===0){l=i;break;}}return l;}, generateWrong:(c)=>{let w=[c+1,c-1,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g6_gcf_medium', name:'ع.م.أ متوسط', template:'ما هو العامل المشترك الأكبر للعددين {a} و {b}؟', variables:{a:[20,40],b:[30,50]}, solve:v=>{let g=1;for(let i=1;i<=Math.min(v.a,v.b);i++){if(v.a%i===0&&v.b%i===0)g=i;}return g;}, generateWrong:(c)=>{let w=[c+1,c-1,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g6_prime_factors', name:'العوامل الأولية', template:'ما هي العوامل الأولية للعدد {a}؟', variables:{a:[12,18,20,24,30]}, solve:v=>{let n=v.a,f=[];for(let i=2;i<=n;i++){while(n%i===0){f.push(i);n/=i;}}return f.join(' × ');}, generateWrong:(c)=>{let w=['2 × 2 × 3','2 × 3 × 3','2 × 2 × 5','3 × 5'];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:()=>true, isStatic:true, level:'medium' }
+                ],
+                'sec6-2': [
+                    { id:'g6_frac_dec_easy', name:'كسر إلى عشري', template:'ما هو العدد العشري المكافئ للكسر {a}/{b}؟', variables:{a:[1,4],b:[2,8]}, solve:v=>Math.round((v.a/v.b)*100)/100, generateWrong:(c,v)=>{let w=[c+0.1,c-0.1,Math.round((v.a/(v.b+1))*100)/100];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:v=>v.a<v.b&&v.b%2===0, level:'easy' },
+                    { id:'g6_frac_dec_med', name:'كسر إلى عشري متوسط', template:'ما هو العدد العشري المكافئ للكسر {a}/{b}؟', variables:{a:[3,7],b:[5,12]}, solve:v=>Math.round((v.a/v.b)*100)/100, generateWrong:(c,v)=>{let w=[c+0.1,c-0.1,Math.round((v.a/(v.b+1))*100)/100];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:v=>v.a<v.b, level:'medium' },
+                    { id:'g6_ratio_easy', name:'النسبة', template:'ما هي النسبة بين {a} و {b} في أبسط صورة؟', variables:{a:[4,8],b:[6,12]}, solve:v=>{let g=1;for(let i=1;i<=Math.min(v.a,v.b);i++){if(v.a%i===0&&v.b%i===0)g=i;}return `${v.a/g} : ${v.b/g}`;}, generateWrong:(c)=>{let w=['2 : 3','3 : 4','1 : 2','4 : 5'];return shuffle(w.filter(x=>x!==c)).slice(0,3);}, validate:()=>true, isStatic:true, level:'easy' }
+                ],
+                'sec6-3': [
+                    { id:'g6_alg_easy', name:'عبارة جبرية', template:'احسب قيمة {a}x + {b} عندما x = {c}', variables:{a:[2,5],b:[1,5],c:[2,6]}, solve:v=>v.a*v.c+v.b, generateWrong:(c)=>{let w=[c+1,c-1,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g6_alg_medium', name:'عبارة جبرية متوسطة', template:'احسب قيمة {a}x + {b} عندما x = {c}', variables:{a:[3,7],b:[3,9],c:[3,8]}, solve:v=>v.a*v.c+v.b, generateWrong:(c)=>{let w=[c+1,c-1,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g6_alg_word', name:'مسألة لفظية', template:'إذا كان عمر أحمد {a} سنة، وعمر أخته نصف عمره، فما عمر أخته؟', variables:{a:[10,18]}, solve:v=>v.a/2, generateWrong:(c)=>{let w=[c+1,c-1,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:v=>v.a%2===0, level:'easy' }
+                ],
+                'sec6-4': [
+                    { id:'g6_triangle_sum', name:'مجموع زوايا المثلث', template:'ما هو مجموع زوايا المثلث؟', variables:{dummy:[1]}, solve:()=>180, generateWrong:(c)=>[90,360,270], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g6_triangle_angles', name:'زوايا المثلث', template:'إذا كانت زوايا مثلث هي {a}°, {b}°, 60°، فما قيمة {a}+{b}؟', variables:{a:[30,50],b:[40,70]}, solve:()=>120, generateWrong:()=>[90,150,110], validate:v=>v.a+v.b<120, level:'medium' },
+                    { id:'g6_quad_sides', name:'أضلاع الرباعي', template:'كم عدد أضلاع الشكل الرباعي؟', variables:{dummy:[1]}, solve:()=>4, generateWrong:()=>[3,5,6], validate:()=>true, isStatic:true, level:'easy' }
+                ],
+                'sec6-5': [
+                    { id:'g6_area_rect_easy', name:'مساحة المستطيل', template:'مستطيل طوله {a} سم وعرضه {b} سم، ما مساحته؟', variables:{a:[3,12],b:[2,8]}, solve:v=>v.a*v.b, generateWrong:(c,v)=>{let w=[c+v.a,c+v.b,c-1,v.a+v.b];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g6_perimeter_rect_easy', name:'محيط المستطيل', template:'مستطيل طوله {a} سم وعرضه {b} سم، ما محيطه؟', variables:{a:[3,12],b:[2,8]}, solve:v=>2*(v.a+v.b), generateWrong:(c,v)=>{let w=[c+v.a,c+v.b,c-1,v.a+v.b];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g6_area_rect_med', name:'مساحة متوسطة', template:'مستطيل طوله {a} سم وعرضه {b} سم، ما مساحته؟', variables:{a:[5,20],b:[4,15]}, solve:v=>v.a*v.b, generateWrong:(c,v)=>{let w=[c+v.a,c+v.b,c-1,v.a+v.b];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' }
+                ],
+                'sec6-6': [
+                    { id:'g6_mean_easy', name:'المتوسط الحسابي', template:'ما هو متوسط الأعداد: {a}, {b}, {c}؟', variables:{a:[5,15],b:[10,20],c:[15,25]}, solve:v=>Math.round((v.a+v.b+v.c)/3), generateWrong:(c,v)=>{let w=[c+1,c-1,c+2,Math.round((v.a+v.b)/2)];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g6_median_easy', name:'الوسيط', template:'ما هو الوسيط للأعداد: {a}, {b}, {c}؟', variables:{a:[5,15],b:[10,20],c:[15,25]}, solve:v=>{let arr=[v.a,v.b,v.c].sort((x,y)=>x-y);return arr[1];}, generateWrong:(c,v)=>{let w=[c+1,c-1,Math.round((v.a+v.b)/2)];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g6_mean_med', name:'المتوسط المتوسط', template:'ما هو متوسط الأعداد: {a}, {b}, {c}, {d}؟', variables:{a:[8,20],b:[12,25],c:[18,30],d:[20,35]}, solve:v=>Math.round((v.a+v.b+v.c+v.d)/4), generateWrong:(c,v)=>{let w=[c+1,c-1,c+2,Math.round((v.a+v.b)/2)];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' }
+                ]
+            },
+            9: {
+                'sec9-1': [
+                    { id:'g9_sqrt_easy', name:'جذر تربيعي', template:'ما هو الجذر التربيعي للعدد {a}؟', variables:{a:[16,25,36,49,64,81,100]}, solve:v=>Math.sqrt(v.a), generateWrong:(c,v)=>{let w=[c+1,c-1,c*2,Math.round(v.a/2)];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g9_sqrt_med', name:'جذر تربيعي متوسط', template:'ما هو الجذر التربيعي للعدد {a}؟', variables:{a:[121,144,169,196,225]}, solve:v=>Math.sqrt(v.a), generateWrong:(c,v)=>{let w=[c+1,c-1,c*2,Math.round(v.a/2)];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:()=>true, isStatic:true, level:'medium' },
+                    { id:'g9_sqrt_hard', name:'جذر تربيعي متقدم', template:'ما هو الجذر التربيعي للعدد {a}؟', variables:{a:[256,289,324,361,400]}, solve:v=>Math.sqrt(v.a), generateWrong:(c,v)=>{let w=[c+1,c-1,c*2,Math.round(v.a/2)];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:()=>true, isStatic:true, level:'hard' },
+                    { id:'g9_power_easy', name:'قوى', template:'ما هو ناتج {a}²؟', variables:{a:[2,10]}, solve:v=>v.a*v.a, generateWrong:(c)=>{let w=[c+1,c-1,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' }
+                ],
+                'sec9-2': [
+                    { id:'g9_ratio_easy', name:'حل التناسب', template:'إذا كانت النسبة {a}:{b}، وكان الأول {c}، فما هو الثاني؟', variables:{a:[2,4],b:[3,6],c:[6,12]}, solve:v=>(v.b/v.a)*v.c, generateWrong:(c)=>{let w=[c+1,c-1,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:v=>(v.b/v.a)*v.c%1===0, level:'easy' },
+                    { id:'g9_ratio_med', name:'حل التناسب متوسط', template:'إذا كانت النسبة {a}:{b}، وكان الأول {c}، فما هو الثاني؟', variables:{a:[3,7],b:[5,9],c:[9,21]}, solve:v=>(v.b/v.a)*v.c, generateWrong:(c)=>{let w=[c+1,c-1,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:v=>(v.b/v.a)*v.c%1===0, level:'medium' },
+                    { id:'g9_pct_easy', name:'النسبة المئوية', template:'ما هي النسبة المئوية للعدد {a} من {b}؟', variables:{a:[10,50],b:[100,200]}, solve:v=>Math.round((v.a/v.b)*100), generateWrong:(c)=>{let w=[c+5,c-5,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0&&x<=100)).slice(0,3);}, validate:v=>v.a<v.b, level:'easy' }
+                ],
+                'sec9-3': [
+                    { id:'g9_linear_easy', name:'معادلة خطية', template:'حل المعادلة: {a}x + {b} = {c}', variables:{a:[2,5],b:[1,10],c:[10,30]}, solve:v=>(v.c-v.b)/v.a, generateWrong:(c)=>{let w=[c+1,c-1,c*2,c-2];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:v=>(v.c-v.b)%v.a===0&&(v.c-v.b)>0, level:'easy' },
+                    { id:'g9_linear_med', name:'معادلة متوسطة', template:'حل المعادلة: {a}x + {b} = {c}', variables:{a:[3,8],b:[2,15],c:[15,45]}, solve:v=>(v.c-v.b)/v.a, generateWrong:(c)=>{let w=[c+1,c-1,c*2,c-2];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:v=>(v.c-v.b)%v.a===0&&(v.c-v.b)>0, level:'medium' },
+                    { id:'g9_linear_hard', name:'معادلة متقدمة', template:'حل المعادلة: {a}x + {b} = {c}', variables:{a:[5,12],b:[5,20],c:[25,60]}, solve:v=>(v.c-v.b)/v.a, generateWrong:(c)=>{let w=[c+1,c-1,c*2,c-2];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:v=>(v.c-v.b)%v.a===0&&(v.c-v.b)>0, level:'hard' },
+                    { id:'g9_ineq_med', name:'متباينة', template:'ما هو أصغر عدد صحيح يحقق المتباينة: {a}x + {b} > {c}؟', variables:{a:[2,5],b:[1,10],c:[10,30]}, solve:v=>Math.floor((v.c-v.b)/v.a)+1, generateWrong:(c)=>{let w=[c+1,c-1,c*2,c-2];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:()=>true, level:'medium' }
+                ],
+                'sec9-4': [
+                    { id:'g9_pyth_easy', name:'فيثاغورس', template:'في مثلث قائم، طول الضلعين {a} و {b}، ما هو الوتر؟', variables:{a:[3,6],b:[4,8]}, solve:v=>Math.sqrt(v.a*v.a+v.b*v.b), generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:v=>Number.isInteger(Math.sqrt(v.a*v.a+v.b*v.b)), level:'easy' },
+                    { id:'g9_pyth_med', name:'فيثاغورس متوسط', template:'في مثلث قائم، طول الضلعين {a} و {b}، ما هو الوتر؟', variables:{a:[5,12],b:[12,16]}, solve:v=>Math.sqrt(v.a*v.a+v.b*v.b), generateWrong:(c)=>{let w=[c+1,c-1,c+2,c-2];return shuffle(w.filter(x=>x!==c&&x>0&&Number.isInteger(x))).slice(0,3);}, validate:v=>Number.isInteger(Math.sqrt(v.a*v.a+v.b*v.b)), level:'medium' },
+                    { id:'g9_angle_med', name:'زوايا مكملة', template:'إذا كانت الزاوية {a}° مكملة للزاوية {b}°، فما قيمة {b}؟', variables:{a:[30,80]}, solve:v=>180-v.a, generateWrong:(c,v)=>{let w=[c+10,c-10,90-v.a,360-v.a];return shuffle(w.filter(x=>x!==c&&x>0&&x<180)).slice(0,3);}, validate:v=>v.a>0&&v.a<180, level:'medium' }
+                ],
+                'sec9-5': [
+                    { id:'g9_vol_easy', name:'حجم المكعب', template:'مكعب طول ضلعه {a} سم، ما حجمه؟', variables:{a:[2,6]}, solve:v=>v.a*v.a*v.a, generateWrong:(c,v)=>{let w=[c+v.a,c-v.a,v.a*v.a*2,v.a*v.a+v.a];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'easy' },
+                    { id:'g9_vol_med', name:'حجم المكعب متوسط', template:'مكعب طول ضلعه {a} سم، ما حجمه؟', variables:{a:[4,10]}, solve:v=>v.a*v.a*v.a, generateWrong:(c,v)=>{let w=[c+v.a,c-v.a,v.a*v.a*2,v.a*v.a+v.a];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g9_surf_med', name:'المساحة السطحية', template:'مكعب طول ضلعه {a} سم، ما مساحته السطحية؟', variables:{a:[3,8]}, solve:v=>6*v.a*v.a, generateWrong:(c,v)=>{let w=[c+v.a,c-v.a,v.a*v.a*2,v.a*v.a+v.a];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' }
+                ],
+                'sec9-6': [
+                    { id:'g9_prob_easy', name:'الاحتمال', template:'ما هو احتمال الحصول على عدد زوجي عند رمي مكعب أرقام (١-٦)؟', variables:{dummy:[1]}, solve:()=>0.5, generateWrong:(c)=>[0.33,0.66,0.25,0.75], validate:()=>true, isStatic:true, level:'easy' },
+                    { id:'g9_prob_med', name:'الاحتمال متوسط', template:'في كيس يحتوي على {a} كرات حمراء و {b} زرقاء، ما احتمال سحب كرة حمراء؟', variables:{a:[3,8],b:[5,12]}, solve:v=>Math.round((v.a/(v.a+v.b))*100)/100, generateWrong:(c,v)=>{let w=[c+0.1,c-0.1,Math.round((v.b/(v.a+v.b))*100)/100];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' },
+                    { id:'g9_comb_med', name:'عدد النواتج', template:'إذا ألقيت عملة معدنية {a} مرات، كم عدد النواتج الممكنة؟', variables:{a:[2,5]}, solve:v=>Math.pow(2,v.a), generateWrong:(c)=>{let w=[c+1,c-1,c*2,Math.floor(c/2)];return shuffle(w.filter(x=>x!==c&&x>0)).slice(0,3);}, validate:()=>true, level:'medium' }
+                ]
+            }
+        };
+
+        /* ============================================================
+           دوال مساعدة
+           ============================================================ */
+        function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+        function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function toArabicWords(n){
+            const ones = ['','واحد','اثنان','ثلاثة','أربعة','خمسة','ستة','سبعة','ثمانية','تسعة'];
+            const tens = ['','عشرة','عشرون','ثلاثون','أربعون','خمسون','ستون','سبعون','ثمانون','تسعون'];
+            const teens = ['عشرة','أحد عشر','اثنا عشر','ثلاثة عشر','أربعة عشر','خمسة عشر','ستة عشر','سبعة عشر','ثمانية عشر','تسعة عشر'];
+            const n100 = Math.floor(n/100), r = n%100;
+            let parts = [];
+            if(n100>0) parts.push(`${ones[n100]} مئة`);
+            if(r>=10 && r<20) parts.push(teens[r-10]);
+            else {
+                const t = Math.floor(r/10), o = r%10;
+                if(o>0) parts.push(ones[o]);
+                if(t>0) parts.push(tens[t]);
+            }
+            return parts.join(' و');
+        }
+
+        /* ============================================================
+           قوالب إضافية — اختيار من متعدد فقط
+           تولَّد القيم عشوائيًا مع التحقق من أربعة خيارات فريدة.
+           هذه أسئلة تدريبية محاكية للمهارات وليست أسئلة نافس رسمية.
+           ============================================================ */
+        const r = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+        const choose = a => a[r(0,a.length-1)];
+        const gcd = (a,b) => b ? gcd(b,a%b) : a;
+        const fmt = x => typeof x === 'number' ? (Number.isInteger(x) ? String(x) : String(Math.round(x*10000)/10000)) : String(x);
+        const Q = (text,correct,explanation='',distractors=[]) => ({text,correct,distractors,explanation:explanation || `الإجابة الصحيحة: ${fmt(correct)}.`});
+        function register(grade, section, level, id, name, build) {
+            TEMPLATES_BANK[grade][section].push({id,level,name,build});
+        }
+        // ───── الصف الثالث الابتدائي ─────
+        register(3,'sec3-1','easy','x3_save_money','جمع مبلغين',()=>{let a=r(5,35),b=r(5,30);return Q(`ادّخرت ريم ${a} ريالًا، ثم ادّخرت ${b} ريالًا أخرى. كم أصبح معها؟`,a+b,`${a} + ${b} = ${a+b}`)});
+        register(3,'sec3-1','medium','x3_sub_books','مسألة طرح',()=>{let a=r(35,85),b=r(5,34);return Q(`في المكتبة ${a} كتابًا، استُعير منها ${b} كتابًا. كم كتابًا بقي؟`,a-b,`${a} − ${b} = ${a-b}`)});
+        register(3,'sec3-1','hard','x3_money_diff','المقارنة بين الكميات',()=>{let a=r(110,290),b=r(60,100);return Q(`مع سارة ${a} ريالًا، ومع مريم ${b} ريالًا. بكم تزيد نقود سارة عن مريم؟`,a-b)});
+        register(3,'sec3-2','easy','x3_groups','مجموعات متساوية',()=>{let a=r(2,9),b=r(2,9);return Q(`رتبت المعلمة ${a} صفوف، في كل صف ${b} طالبات. كم طالبة؟`,a*b)});
+        register(3,'sec3-2','medium','x3_div_sharing','التوزيع بالتساوي',()=>{let k=r(3,9),b=r(2,8);return Q(`وُزّعت ${k*b} قطعة حلوى بالتساوي على ${b} أطفال. كم قطعة لكل طفل؟`,k)});
+        register(3,'sec3-2','hard','x3_multi_step','مسألة من خطوتين',()=>{let a=r(3,8),b=r(3,8),c=r(2,a*b-1);return Q(`مع هند ${a} علب، في كل علبة ${b} ألوان، وأعطت أختها ${c} لونًا. كم لونًا بقي؟`,a*b-c)});
+        register(3,'sec3-3','easy','x3_frac_equal_den','مقارنة كسور',()=>{let d=r(4,10),a=r(1,d-2),b=r(a+1,d-1);return Q(`أي الكسرين أكبر: ${a}/${d} أم ${b}/${d}؟`,`${b}/${d}`,`عند تساوي المقامات يكون الأكبر بسطًا أكبر.`,[`${a}/${d}`,`${a}/${d+1}`,`${b}/${d+1}`])});
+        register(3,'sec3-3','medium','x3_frac_of_group','كسر من مجموعة',()=>{let d=choose([2,3,4,5]),k=r(2,9),a=r(1,d-1);return Q(`يوجد ${d*k} قلمًا، فما عدد الأقلام التي تمثل ${a}/${d} من المجموعة؟`,a*k)});
+        register(3,'sec3-3','medium','x3_fraction_remaining','الجزء المتبقي',()=>{let d=r(4,10),a=r(1,d-1);return Q(`قُسمت فطيرة إلى ${d} أجزاء متساوية وأُكل منها ${a}. كم جزءًا بقي؟`,d-a)});
+        register(3,'sec3-4','easy','x3_pattern_step','إكمال نمط',()=>{let a=r(1,20),d=r(3,9);return Q(`أكملي النمط: ${a}، ${a+d}، ${a+2*d}، ...`,a+3*d)});
+        register(3,'sec3-4','medium','x3_unknown_sub','عدد مجهول',()=>{let x=r(11,35),a=r(4,10);return Q(`ما العدد الذي إذا طرحنا منه ${a} كان الناتج ${x-a}؟`,x)});
+        register(3,'sec3-4','medium','x3_pattern_even','أنماط أعداد زوجية',()=>{let a=2*r(2,12);return Q(`أي عدد يُكمل النمط: ${a}، ${a+2}، ${a+4}، ...؟`,a+6)});
+        register(3,'sec3-5','easy','x3_polygon','المضلعات',()=>{let sides=choose([3,4,5,6]);let names={3:'المثلث',4:'الشكل الرباعي',5:'الشكل الخماسي',6:'الشكل السداسي'};return Q(`كم ضلعًا في ${names[sides]}؟`,sides)});
+        register(3,'sec3-5','medium','x3_rect_vertices','رؤوس المجسم',()=>Q(`كم رأسًا للمكعب؟`,8,'للمكعب ثمانية رؤوس.',[6,10,12]));
+        register(3,'sec3-5','medium','x3_tri_total','مجموع أضلاع',()=>{let a=r(3,8),b=r(3,8),c=r(Math.abs(a-b)+1,a+b-1);return Q(`مثلث أطوال أضلاعه ${a} سم و${b} سم و${c} سم، ما محيطه؟`,a+b+c)});
+        register(3,'sec3-6','easy','x3_rect_perim','محيط المستطيل',()=>{let a=r(4,12),b=r(2,9);return Q(`طول مستطيل ${a} سم وعرضه ${b} سم. ما محيطه؟`,2*(a+b))});
+        register(3,'sec3-6','medium','x3_square_area','مساحة المربع',()=>{let a=r(2,11);return Q(`مربع طول ضلعه ${a} سم. ما مساحته بالسنتيمتر المربع؟`,a*a)});
+        register(3,'sec3-6','hard','x3_perim_missing','الضلع المجهول',()=>{let a=r(6,13),b=r(2,5);return Q(`محيط مستطيل ${2*(a+b)} سم، وعرضه ${b} سم. ما طوله؟`,a)});
+        register(3,'sec3-7','easy','x3_liters','تحويل اللترات',()=>{let a=r(2,7);return Q(`كم ملليلترًا في ${a} لترات؟`,a*1000)});
+        register(3,'sec3-7','medium','x3_kg','تحويل الكيلوغرام',()=>{let a=r(2,8);return Q(`كم غرامًا في ${a} كيلوغرامات؟`,a*1000)});
+        register(3,'sec3-7','medium','x3_time','تحويل الزمن',()=>{let a=r(2,5),b=r(5,55);return Q(`كم دقيقة في ${a} ساعات و${b} دقائق؟`,a*60+b)});
+        register(3,'sec3-8','easy','x3_data_apples','قراءة بيانات',()=>{let a=r(6,18),b=r(5,16);return Q(`باع متجر ${a} تفاحة صباحًا و${b} تفاحة مساءً. كم تفاحة باع؟`,a+b)});
+        register(3,'sec3-8','medium','x3_data_gap','فرق التكرارات',()=>{let a=r(20,35),b=r(5,19);return Q(`قرأ فصل ${a} قصة، وقرأ فصل آخر ${b} قصة. كم قصة تزيد قراءة الفصل الأول؟`,a-b)});
+        register(3,'sec3-8','hard','x3_data_mode','المنوال',()=>{let x=r(2,20),y=x+r(1,5);return Q(`ما المنوال في البيانات: ${x}، ${y}، ${x}، ${x}، ${y}؟`,x)});
+
+        // ───── الصف السادس الابتدائي: الأعداد والعمليات ─────
+        register(6,'sec6-1','easy','x6_prime','عدد أولي',()=>{let correct=choose([11,13,17,19,23,29]);return Q('أي الأعداد التالية عدد أولي؟',correct,'العدد الأولي له عاملان فقط.',[correct+1,correct*2,correct*3])});
+        register(6,'sec6-1','easy','x6_multiple','المضاعفات',()=>{let a=r(3,10),n=r(3,8);return Q(`ما المضاعف ${n} للعدد ${a}؟`,a*n)});
+        register(6,'sec6-1','medium','x6_gcd_story','العامل المشترك الأكبر',()=>{let g=r(2,8),a=g*r(2,5),b=g*r(2,6);return Q(`ما العامل المشترك الأكبر للعددين ${a} و${b}؟`,gcd(a,b))});
+        register(6,'sec6-1','medium','x6_lcm_story','المضاعف المشترك الأصغر',()=>{let a=r(3,10),b=r(4,12);return Q(`ما المضاعف المشترك الأصغر للعددين ${a} و${b}؟`,a*b/gcd(a,b))});
+        register(6,'sec6-1','medium','x6_factors_count','عوامل عدد',()=>{let x=choose([12,18,20,24,30,36]);let n=0;for(let i=1;i<=x;i++)if(x%i===0)n++;return Q(`كم عدد عوامل العدد ${x} الموجبة؟`,n)});
+        register(6,'sec6-1','hard','x6_exp','قيمة قوة',()=>{let a=r(2,6),b=r(2,4);return Q(`ما قيمة ${a} أس ${b}؟`,a**b)});
+        register(6,'sec6-1','hard','x6_order','ترتيب العمليات',()=>{let a=r(3,15),b=r(2,8),c=r(2,9);return Q(`ما قيمة ${a} + ${b} × ${c}؟`,a+b*c,'ننفّذ الضرب قبل الجمع.')});
+        register(6,'sec6-1','hard','x6_divisible','قابلية القسمة',()=>{let d=choose([3,4,5,6,9]),q=r(8,18);return Q(`ما ناتج ${d*q} ÷ ${d}؟`,q)});
+
+        // ───── السادس: الكسور والنسبة ─────
+        register(6,'sec6-2','easy','x6_dec_multiply','ضرب عشري',()=>{let a=r(2,80);return Q(`ما ناتج ${fmt(a/10)} × 10؟`,a)});
+        register(6,'sec6-2','easy','x6_fraction_num','كسر من كمية',()=>{let d=choose([2,3,4,5,6]),n=r(1,d-1),k=r(3,12);return Q(`ما قيمة ${n}/${d} من ${d*k}؟`,n*k)});
+        register(6,'sec6-2','medium','x6_frac_add','جمع كسور متشابهة',()=>{let d=r(5,12),a=r(1,3),b=r(1,3),sum=a+b;let h=gcd(sum,d);return Q(`ما ناتج ${a}/${d} + ${b}/${d} في أبسط صورة؟`,`${sum/h}/${d/h}`,'نجمع البسطين ونبسط الكسر.',[`${sum}/${d+1}`,`${sum+1}/${d}`,`${Math.max(1,sum-1)}/${d}`])});
+        register(6,'sec6-2','medium','x6_decimal_add','جمع الأعداد العشرية',()=>{let a=r(11,95)/10,b=r(11,95)/10;return Q(`ما ناتج ${fmt(a)} + ${fmt(b)}؟`,Math.round((a+b)*10)/10)});
+        register(6,'sec6-2','medium','x6_ratio_total','النسبة من مجموعة',()=>{let a=r(2,6),b=r(2,6),k=r(2,8);return Q(`في مجموعة النسبة بين الأولاد والبنات ${a}:${b}، ومجموع الأفراد ${(a+b)*k}. كم بنتًا؟`,b*k)});
+        register(6,'sec6-2','hard','x6_discount','الخصم',()=>{let p=choose([100,200,300,400]),d=choose([10,15,20,25]);return Q(`ثمن حقيبة ${p} ريال، والخصم ${d}%. كم يصبح الثمن بعد الخصم؟`,p*(100-d)/100)});
+        register(6,'sec6-2','hard','x6_unit_price','سعر الوحدة',()=>{let price=r(3,25),count=r(3,8);return Q(`ثمن ${count} دفاتر هو ${price*count} ريالًا. كم ثمن الدفتر الواحد؟`,price)});
+        register(6,'sec6-2','hard','x6_mixed_num','العدد الكسري إلى كسر غير فعلي',()=>{let a=r(1,6),d=r(2,8),n=r(1,d-1);return Q(`ما بسط الكسر غير الفعلي المكافئ لـ ${a} و${n}/${d}؟`,a*d+n)});
+
+        // ───── السادس: الجبر ─────
+        register(6,'sec6-3','easy','x6_substitute','التعويض',()=>{let a=r(2,7),x=r(2,8);return Q(`ما قيمة ${a}س عندما س = ${x}؟`,a*x)});
+        register(6,'sec6-3','easy','x6_equality','معادلة جمع',()=>{let x=r(6,30),a=r(4,15);return Q(`ما حل المعادلة س + ${a} = ${x+a}؟`,x)});
+        register(6,'sec6-3','medium','x6_sub_eq','معادلة طرح',()=>{let x=r(6,30),a=r(4,15);return Q(`ما حل المعادلة س − ${a} = ${x-a}؟`,x)});
+        register(6,'sec6-3','medium','x6_mul_eq','معادلة ضرب',()=>{let x=r(3,15),a=r(2,9);return Q(`حل المعادلة ${a}س = ${a*x} هو:`,x)});
+        register(6,'sec6-3','medium','x6_sequence','قاعدة نمط',()=>{let a=r(2,9),d=r(2,9);return Q(`في النمط ${a}، ${a+d}، ${a+2*d}، ... ما الحد الخامس؟`,a+4*d)});
+        register(6,'sec6-3','hard','x6_two_steps','معادلة خطوتين',()=>{let x=r(2,18),a=r(2,7),b=r(2,15);return Q(`ما حل المعادلة ${a}س + ${b} = ${a*x+b}؟`,x)});
+        register(6,'sec6-3','hard','x6_expr_word','عبارة جبرية',()=>{let x=r(2,14),a=r(2,8),b=r(3,15);return Q(`إذا كانت س = ${x}، فما قيمة ${a}س − ${b}؟`,a*x-b)});
+        register(6,'sec6-3','hard','x6_linear_context','مسألة جبرية',()=>{let p=r(8,25),a=r(2,8),b=r(2,9);return Q(`اشترت منى ${a} دفاتر متساوية الثمن ودفعت ${a*p+b} ريالًا، منها ${b} ريالات ثمن قلم. كم سعر الدفتر؟`,p)});
+
+        // ───── السادس: الهندسة ─────
+        register(6,'sec6-4','easy','x6_tri_angles','زوايا المثلث',()=>{let a=r(35,75),b=r(35,75);return Q(`في مثلث زاويتان قياسهما ${a}° و${b}°. ما قياس الثالثة؟`,180-a-b)});
+        register(6,'sec6-4','easy','x6_rect_angles','الزوايا القائمة',()=>Q('ما مجموع قياسات زوايا الشكل الرباعي؟',360,'مجموع زوايا الشكل الرباعي يساوي 360°.',[90,180,270]));
+        register(6,'sec6-4','medium','x6_complement','زاويتان متتامتان',()=>{let a=r(15,75);return Q(`زاويتان متتامتان، إحداهما ${a}°. ما قياس الأخرى؟`,90-a)});
+        register(6,'sec6-4','medium','x6_supplement','زاويتان متكاملتان',()=>{let a=r(25,150);return Q(`زاويتان متكاملتان، إحداهما ${a}°. ما قياس الأخرى؟`,180-a)});
+        register(6,'sec6-4','medium','x6_polygon_sum','زوايا مضلع',()=>{let n=choose([3,4,5,6,7]);return Q(`ما مجموع قياسات الزوايا الداخلية لمضلع عدد أضلاعه ${n}؟`,(n-2)*180)});
+        register(6,'sec6-4','hard','x6_regular_angle','زاوية المضلع المنتظم',()=>{let n=choose([3,4,5,6,8,9]);return Q(`ما قياس الزاوية الداخلية لمضلع منتظم عدد أضلاعه ${n}؟`,(n-2)*180/n)});
+        register(6,'sec6-4','hard','x6_circle_diameter','القطر ونصف القطر',()=>{let a=r(3,20);return Q(`نصف قطر دائرة ${a} سم. فما قطرها؟`,2*a)});
+        register(6,'sec6-4','hard','x6_exterior_angle','الزاوية الخارجية',()=>{let n=choose([3,4,5,6,8,9,10,12]);return Q(`ما قياس زاوية خارجية واحدة لمضلع منتظم له ${n} أضلاع؟`,360/n)});
+
+        // ───── السادس: القياس ─────
+        register(6,'sec6-5','easy','x6_perim_rect','محيط المستطيل',()=>{let a=r(8,24),b=r(3,12);return Q(`ما محيط مستطيل طوله ${a} سم وعرضه ${b} سم؟`,2*(a+b))});
+        register(6,'sec6-5','easy','x6_area_tri','مساحة المثلث',()=>{let a=r(4,16),b=r(2,12);return Q(`مثلث طول قاعدته ${a} سم وارتفاعه ${b} سم. ما مساحته؟`,a*b/2)});
+        register(6,'sec6-5','medium','x6_volume_box','حجم متوازي المستطيلات',()=>{let a=r(2,9),b=r(3,9),c=r(2,8);return Q(`ما حجم متوازي مستطيلات أبعاده ${a}، ${b}، ${c} سم؟`,a*b*c)});
+        register(6,'sec6-5','medium','x6_trap_area','مساحة شبه المنحرف',()=>{let a=r(5,12),b=r(13,20),h=r(2,10);return Q(`شبه منحرف قاعدتاه ${a} و${b} سم، وارتفاعه ${h} سم. ما مساحته؟`,(a+b)*h/2)});
+        register(6,'sec6-5','medium','x6_sq_miss','طول ضلع المربع',()=>{let a=r(3,16);return Q(`مساحة مربع ${a*a} سم². كم طول ضلعه؟`,a)});
+        register(6,'sec6-5','hard','x6_prism_surface','مساحة سطح متوازي المستطيلات',()=>{let a=r(3,8),b=r(4,9),c=r(2,7);return Q(`متوازي مستطيلات أبعاده ${a} و${b} و${c} سم. ما مساحة سطحه؟`,2*(a*b+a*c+b*c))});
+        register(6,'sec6-5','hard','x6_cube_volume','حجم المكعب',()=>{let a=r(3,12);return Q(`ما حجم مكعب طول حرفه ${a} سم؟`,a**3)});
+        register(6,'sec6-5','hard','x6_square_perim','محيط مربع',()=>{let a=r(3,20);return Q(`ما محيط مربع مساحته ${a*a} سم²؟`,4*a)});
+
+        // ───── السادس: الإحصاء ─────
+        register(6,'sec6-6','easy','x6_mean','المتوسط الحسابي',()=>{let a=r(4,22),b=r(5,24),c=r(5,24);return Q(`ما متوسط الأعداد ${a}، ${b}، ${c} (مقربًا لأقرب جزء من مئة)؟`,Math.round((a+b+c)/3*100)/100,'نجمع القيم ونقسمها على 3، وتقرب النتيجة عند الحاجة لأقرب جزء من مئة.')});
+        register(6,'sec6-6','easy','x6_mode','المنوال',()=>{let x=r(3,30),y=x+r(1,8);return Q(`ما المنوال للبيانات: ${x}، ${y}، ${x}، ${y}، ${x}؟`,x)});
+        register(6,'sec6-6','medium','x6_range','المدى',()=>{let a=r(2,10),b=a+r(11,28);return Q(`إذا كانت أصغر قيمة ${a} وأكبر قيمة ${b}، فما المدى؟`,b-a)});
+        register(6,'sec6-6','medium','x6_median','الوسيط',()=>{let a=r(2,10),b=a+r(1,9),c=b+r(1,10);return Q(`ما وسيط البيانات ${c}، ${a}، ${b}؟`,b)});
+        register(6,'sec6-6','medium','x6_probability','احتمال بسيط',()=>{let a=r(2,8),b=r(3,9);return Q(`في صندوق ${a} كرات حمراء و${b} زرقاء. ما احتمال اختيار كرة حمراء (بالنسبة المئوية، مقربًا لأقرب عُشر)؟`,Math.round(1000*a/(a+b))/10)});
+        register(6,'sec6-6','hard','x6_weight_mean','متوسط مع تكرار',()=>{let a=r(3,9),b=r(10,19);return Q(`تكررت الدرجة ${a} مرتين، والدرجة ${b} مرتين. ما المتوسط؟`,(a+b)/2)});
+        register(6,'sec6-6','hard','x6_freq_sum','جداول التكرارات',()=>{let a=r(3,12),b=r(2,9),c=r(2,11);return Q(`إذا كانت تكرارات ثلاث فئات ${a} و${b} و${c}، فما إجمالي المشاهدات؟`,a+b+c)});
+        register(6,'sec6-6','hard','x6_prob_pair','عدد النواتج',()=>{let a=choose([2,3,4,5,6]),b=choose([3,4,5,6]);return Q(`تجربة لها ${a} نواتج أولى و${b} نواتج ثانية. كم ناتجًا ممكنًا للتجربتين معًا؟`,a*b)});
+
+        // ───── الصف الثالث المتوسط: الأعداد والجذور ─────
+        register(9,'sec9-1','easy','x9_sqrt_large','الجذور التربيعية',()=>{let x=r(5,25);return Q(`ما قيمة √${x*x}؟`,x)});
+        register(9,'sec9-1','easy','x9_abs','القيمة المطلقة',()=>{let x=r(5,35);return Q(`ما القيمة المطلقة للعدد −${x}؟`,x)});
+        register(9,'sec9-1','medium','x9_exp','الأسس',()=>{let a=r(2,8),b=r(2,4);return Q(`ما قيمة ${a}^${b}؟`,a**b)});
+        register(9,'sec9-1','medium','x9_pow_mul','خواص الأسس',()=>{let a=r(2,5),b=r(2,4),c=r(2,4);return Q(`ما قيمة ${a}^${b} × ${a}^${c}؟`,a**(b+c))});
+        register(9,'sec9-1','medium','x9_cubes','الجذر التكعيبي',()=>{let a=r(2,10);return Q(`ما قيمة الجذر التكعيبي لـ ${a**3}؟`,a)});
+        register(9,'sec9-1','hard','x9_scientific','الصيغة العلمية',()=>{let a=r(2,9),n=r(2,5);return Q(`ما القيمة العددية لـ ${a} × 10^${n}؟`,a*10**n)});
+        register(9,'sec9-1','hard','x9_neg_pow','الأسس السالبة',()=>{let a=choose([2,4,5,10]),b=r(1,3);return Q(`ما قيمة (${a})^−${b} في صورة كسر اعتيادي؟`,`1/${a**b}`,'الأس السالب يعني مقلوب القوة.',[`1/${a**b+1}`,`${a**b}/1`,`1/${a**b+2}`])});
+        register(9,'sec9-1','hard','x9_real_compare','مقارنة الأعداد',()=>{let a=r(2,8),b=r(2,6);return Q(`ما ناتج √${a*a} + √${b*b}؟`,a+b)});
+
+        // ───── الثالث المتوسط: النسبة والتناسب ─────
+        register(9,'sec9-2','easy','x9_rate','معدل الوحدة',()=>{let rate=r(8,38),count=r(2,10);return Q(`قطعت سيارة ${rate*count} كم في ${count} ساعات بمعدل ثابت. ما معدلها بالكم/ساعة؟`,rate)});
+        register(9,'sec9-2','easy','x9_percent_part','نسبة مئوية',()=>{let p=choose([10,20,25,50,75]),n=choose([100,200,400]);return Q(`ما قيمة ${p}% من ${n}؟`,p*n/100)});
+        register(9,'sec9-2','medium','x9_ratio_scale','مقياس الرسم',()=>{let scale=choose([100,200,500]),cm=r(2,12);return Q(`إذا كان 1 سم على خريطة يمثل ${scale} مترًا، فكم مترًا يمثل ${cm} سم؟`,scale*cm)});
+        register(9,'sec9-2','medium','x9_proportion','حل التناسب',()=>{let a=r(2,9),b=r(2,8),c=r(3,9);return Q(`إذا كان ${a}/${a*b} = ${c}/س، فما قيمة س؟`,b*c)});
+        register(9,'sec9-2','medium','x9_fraction_percent','تحويل إلى نسبة مئوية',()=>{let den=choose([2,4,5,10,20]),n=r(1,den-1);return Q(`ما النسبة المئوية التي تمثل الكسر ${n}/${den}؟`,100*n/den)});
+        register(9,'sec9-2','hard','x9_markup','زيادة نسبة مئوية',()=>{let p=choose([100,200,300,400]),q=choose([10,20,25]);return Q(`سعر سلعة ${p} ريال، زاد سعرها ${q}%. كم السعر الجديد؟`,p*(100+q)/100)});
+        register(9,'sec9-2','hard','x9_discount','خصم نسبي',()=>{let p=choose([120,200,240,300,400]),q=choose([10,20,25,50]);return Q(`سعر جهاز ${p} ريال، خُصم منه ${q}%. كم السعر بعد الخصم؟`,p*(100-q)/100)});
+        register(9,'sec9-2','hard','x9_reverse_percent','حساب الأصل',()=>{let p=choose([10,20,25,50]),original=choose([80,120,160,200,240,400]);return Q(`إذا كان ${p}% من عدد يساوي ${p*original/100}، فما العدد؟`,original)});
+
+        // ───── الثالث المتوسط: الجبر ─────
+        register(9,'sec9-3','easy','x9_eq_simple','حل معادلة',()=>{let x=r(-8,20),a=r(2,9);return Q(`ما حل المعادلة س + ${a} = ${x+a}؟`,x)});
+        register(9,'sec9-3','easy','x9_slope','الميل',()=>{let m=r(1,8),dx=r(2,6);return Q(`إذا زادت ص بمقدار ${m*dx} عند زيادة س بمقدار ${dx}، فما ميل المستقيم؟`,m)});
+        register(9,'sec9-3','medium','x9_linear_2','معادلة خطية',()=>{let x=r(-6,15),a=r(2,9),b=r(2,12);return Q(`حل المعادلة ${a}س − ${b} = ${a*x-b} هو:`,x)});
+        register(9,'sec9-3','medium','x9_both_sides','معادلة بطرفين',()=>{let x=r(2,16),a=r(5,11),b=r(1,4),c=r(1,8),d=(a-b)*x+c;return Q(`ما حل المعادلة ${a}س + ${c} = ${b}س + ${d}؟`,x)});
+        register(9,'sec9-3','medium','x9_function','قيمة دالة',()=>{let x=r(-5,12),a=r(2,7),b=r(1,11);return Q(`إذا كانت د(س) = ${a}س + ${b}، فما د(${x})؟`,a*x+b)});
+        register(9,'sec9-3','hard','x9_inequality','متباينة خطية',()=>{let a=r(2,7),x=r(2,14),b=r(1,10),threshold=a*x+b;return Q(`ما أصغر عدد صحيح يحقق ${a}س + ${b} > ${threshold}؟`,x+1)});
+        register(9,'sec9-3','hard','x9_system','نظام معادلتين',()=>{let x=r(1,15),y=r(1,12);return Q(`إذا كان س + ص = ${x+y}، وس − ص = ${x-y}، فما قيمة س؟`,x)});
+        register(9,'sec9-3','hard','x9_eq_fraction','معادلة كسرية',()=>{let a=r(2,7),b=r(1,9),q=r(3,11),x=a*q-b;return Q(`حل المعادلة (س + ${b}) ÷ ${a} = ${q} هو:`,x)});
+
+        // ───── الثالث المتوسط: الهندسة ─────
+        register(9,'sec9-4','easy','x9_triple','نظرية فيثاغورس',()=>{let [a,b,c]=choose([[3,4,5],[5,12,13],[8,15,17],[7,24,25]]),k=r(1,4);return Q(`في مثلث قائم طول ضلعَي القائمة ${a*k} سم و${b*k} سم. ما طول الوتر؟`,c*k)});
+        register(9,'sec9-4','easy','x9_angle_sum','زوايا المثلث',()=>{let a=r(25,70),b=r(30,80);return Q(`في مثلث قياس زاويتين ${a}° و${b}°. ما الثالثة؟`,180-a-b)});
+        register(9,'sec9-4','medium','x9_missing_leg','الضلع المجهول',()=>{let [a,b,c]=choose([[3,4,5],[5,12,13],[8,15,17],[7,24,25]]),k=r(1,4);return Q(`في مثلث قائم الوتر ${c*k} سم وأحد ضلعي القائمة ${a*k} سم. ما طول الضلع الآخر؟`,b*k)});
+        register(9,'sec9-4','medium','x9_supplement','الزوايا المتكاملة',()=>{let a=r(30,150);return Q(`ما قياس الزاوية المكملة لزاوية قياسها ${a}°؟`,180-a)});
+        register(9,'sec9-4','medium','x9_similar','تشابه المثلثات',()=>{let k=r(2,5),a=r(3,9),b=r(3,10);return Q(`ضلعان متناظران في مثلثين متشابهين، طول الأول ${a} سم والثاني ${a*k} سم. إذا كان ضلع آخر في الأول ${b} سم، فما نظيره في الثاني؟`,b*k)});
+        register(9,'sec9-4','hard','x9_trig_sin','نسبة الجيب',()=>{let [opp,hyp]=choose([[3,5],[5,13],[8,17]]);return Q(`في مثلث قائم، طول الضلع المقابل للزاوية ${opp} والوتر ${hyp}. ما جيب الزاوية (مقربًا لأقرب جزء من مئة)؟`,Math.round(opp/hyp*100)/100)});
+        register(9,'sec9-4','hard','x9_pyth_coords','المسافة بين نقطتين',()=>{let a=choose([3,5,8]),b=choose([4,12,15]),d=Math.sqrt(a*a+b*b);return Q(`المسافة بين النقطتين (0,0) و(${a},${b}) تساوي تقريبًا (لأقرب جزء من مئة):`,Math.round(d*100)/100)});
+        register(9,'sec9-4','hard','x9_triangle_perim','محيط مثلث قائم',()=>{let [a,b,c]=choose([[3,4,5],[5,12,13],[8,15,17]]),k=r(1,3);return Q(`مثلث قائم أضلاعه ${a*k}، ${b*k}، ${c*k} سم. ما محيطه؟`,(a+b+c)*k)});
+
+        // ───── الثالث المتوسط: القياس ─────
+        register(9,'sec9-5','easy','x9_cube_vol','حجم المكعب',()=>{let a=r(3,12);return Q(`ما حجم مكعب طول حرفه ${a} سم؟`,a**3)});
+        register(9,'sec9-5','easy','x9_rect_area','مساحة مستطيل',()=>{let a=r(7,18),b=r(4,13);return Q(`مستطيل طوله ${a} وعرضه ${b} سم. ما مساحته؟`,a*b)});
+        register(9,'sec9-5','medium','x9_cylinder_vol','حجم الأسطوانة',()=>{let a=r(2,8),h=r(3,15);return Q(`ما حجم أسطوانة نصف قطرها ${a} سم وارتفاعها ${h} سم، بدلالة π (أي ما العدد المضروب في π)؟`,a*a*h)});
+        register(9,'sec9-5','medium','x9_circle_area','مساحة الدائرة',()=>{let a=r(2,15);return Q(`ما مساحة دائرة نصف قطرها ${a} سم بدلالة π (ما العدد المضروب في π)؟`,a*a)});
+        register(9,'sec9-5','medium','x9_cone_vol','حجم المخروط',()=>{let a=r(2,9),h=3*r(2,7);return Q(`ما حجم مخروط نصف قطره ${a} سم وارتفاعه ${h} سم بدلالة π (ما العدد المضروب في π)؟`,a*a*h/3)});
+        register(9,'sec9-5','hard','x9_cube_surface','مساحة سطح المكعب',()=>{let a=r(3,12);return Q(`ما مساحة سطح مكعب طول حرفه ${a} سم؟`,6*a*a)});
+        register(9,'sec9-5','hard','x9_cyl_lateral','المساحة الجانبية للأسطوانة',()=>{let a=r(2,9),h=r(3,15);return Q(`ما مساحة السطح الجانبي لأسطوانة نصف قطرها ${a} وارتفاعها ${h} سم بدلالة π (ما العدد المضروب في π)؟`,2*a*h)});
+        register(9,'sec9-5','hard','x9_prism_volume','حجم منشور',()=>{let a=r(3,13),b=r(3,11),c=r(3,8);return Q(`منشور قائم مساحة قاعدته ${a*b} سم² وارتفاعه ${c} سم، ما حجمه؟`,a*b*c)});
+
+        // ───── الثالث المتوسط: الإحصاء والاحتمالات ─────
+        register(9,'sec9-6','easy','x9_coin','احتمالات عملة',()=>Q('عند رمي قطعة نقود عادلة، ما احتمال ظهور الصورة؟','1/2','هناك نتيجتان متساويتان في الاحتمال.',['1/3','1/4','1/6']));
+        register(9,'sec9-6','easy','x9_dice','احتمال مكعب أرقام',()=>Q('عند رمي مكعب أرقام عادل مرقم من 1 إلى 6، ما احتمال ظهور عدد زوجي؟','1/2','ثلاث نتائج زوجية من أصل ست.',['1/3','1/4','2/3']));
+        register(9,'sec9-6','medium','x9_mean','المتوسط الحسابي',()=>{let a=r(4,15),b=r(5,20),c=r(6,22);return Q(`ما المتوسط الحسابي للأعداد ${a}، ${b}، ${c} (مقربًا لأقرب جزء من مئة)؟`,Math.round((a+b+c)/3*100)/100)});
+        register(9,'sec9-6','medium','x9_median','الوسيط',()=>{let a=r(2,10),b=a+r(1,8),c=b+r(1,10);return Q(`ما وسيط القيم ${b}، ${c}، ${a}؟`,b)});
+        register(9,'sec9-6','medium','x9_events','مبدأ العد',()=>{let a=r(2,7),b=r(3,8);return Q(`قائمة طعام فيها ${a} أطباق رئيسية و${b} أنواع عصير. كم وجبة مختلفة (طبق وعصير) يمكن اختيارها؟`,a*b)});
+        register(9,'sec9-6','hard','x9_two_coin','رمي عملات',()=>{let n=r(2,6);return Q(`إذا رميت قطعة نقود عادلة ${n} مرات، فما عدد النواتج الممكنة؟`,2**n)});
+        register(9,'sec9-6','hard','x9_stdev_range','مدى البيانات',()=>{let a=r(10,35),b=r(1,9),c=a+b+r(2,14);return Q(`ما مدى البيانات ${c}، ${a}، ${a+b}؟`,c-a)});
+        register(9,'sec9-6','hard','x9_event_percent','احتمال بالنسب المئوية',()=>{let red=r(2,9),blue=r(2,9);return Q(`صندوق فيه ${red} كرات حمراء و${blue} زرقاء. ما احتمال سحب كرة زرقاء بالنسبة المئوية (لأقرب عُشر)؟`,Math.round(1000*blue/(red+blue))/10)});
+
+        /* ============================================================
+           التحقق من القوالب الأصلية وإصلاح البيانات غير المكتملة
+           ============================================================ */
+        function originalTemplate(id) {
+            for (const sections of Object.values(TEMPLATES_BANK))
+                for (const section of Object.values(sections)) {
+                    const found = section.find(t => t.id === id);
+                    if (found) return found;
+                }
+            return null;
+        }
+        // الإصلاحات الآتية لا تغيّر واجهة المستخدم الأصلية.
+        const correctedMultiply = originalTemplate('g3_mul_2d_2d');
+        if (correctedMultiply) correctedMultiply.generateWrong = (c,v) => [c+v.a,c-v.b,c-10,c+10];
+        const meterError = originalTemplate('g3_m_to_cm');
+        if (meterError) { meterError.template = 'كم مترًا في {a} سنتيمتر؟'; meterError.variables = {a:[100,200,300,400,500]}; meterError.solve = v => v.a/100; }
+        const thirdMean = originalTemplate('g3_data_avg');
+        if (thirdMean) thirdMean.validate = v => (v.a+v.b+v.c)%3 === 0;
+        const fourthMean = originalTemplate('g3_data_avg4');
+        if (fourthMean) fourthMean.validate = v => (v.a+v.b+v.c+v.d)%4 === 0;
+        const sixthMean = originalTemplate('g6_mean_easy');
+        if (sixthMean) sixthMean.validate = v => (v.a+v.b+v.c)%3 === 0;
+        const sixthMeanFour = originalTemplate('g6_mean_med');
+        if (sixthMeanFour) sixthMeanFour.validate = v => (v.a+v.b+v.c+v.d)%4 === 0;
+        const angleFix = originalTemplate('g6_triangle_angles');
+        if (angleFix) {
+            angleFix.template = 'قياس زاويتين في مثلث {a}° و{b}°. كم قياس الزاوية الثالثة؟';
+            angleFix.solve = v => 180-v.a-v.b;
+            angleFix.validate = v => v.a+v.b<180;
+        }
+        const grade9Angle = originalTemplate('g9_angle_med');
+        if (grade9Angle) grade9Angle.template = 'إذا كانت زاويتان متكاملتين، إحداهما {a}°، فما قياس الأخرى؟';
+        for (const id of ['g6_frac_dec_easy','g6_frac_dec_med']) {
+            const template = originalTemplate(id);
+            if (template) template.template += ' (مقربًا لأقرب جزء من مئة)';
+        }
+        const grade9Percent = originalTemplate('g9_pct_easy');
+        if (grade9Percent) grade9Percent.template += ' (مقربة لأقرب نسبة مئوية صحيحة)';
+        const grade9Probability = originalTemplate('g9_prob_med');
+        if (grade9Probability) grade9Probability.template += ' (كعدد عشري مقرب لأقرب جزء من مئة)';
+        for (const [id,index] of [['g3_place_ones',2],['g3_place_tens',1],['g3_place_hundreds',0]]) {
+            const item = originalTemplate(id);
+            if (item) item.validate = v => {
+                const digits = String(v.n).split('');
+                v.d = Number(digits[index]);
+                return v.d>0 && digits.filter(d => d === String(v.d)).length === 1;
+            };
+        }
+        const placeValue = originalTemplate('g3_place_value_3d');
+        if (placeValue) placeValue.validate = v => {
+            v.n = randInt(100,999);
+            const s = String(v.n);
+            v.d = Number(choose([...s].filter(d => d !== '0')));
+            return [...s].filter(d => d === String(v.d)).length === 1;
+        };
+        const most = originalTemplate('g3_data_most');
+        if (most) most.validate = v => new Set([v.a,v.b,v.c]).size === 3;
+        const dataArea = originalTemplate('g3_area_composite');
+        if (dataArea) dataArea.template = 'شكل مكوّن من مربعين غير متداخلين، مساحة الأول {a} سم² والثاني {b} سم². ما مجموع مساحتيهما؟';
+        // قالب زوجي/فردي ذو خيارين فقط؛ يستبدل بقوالب متعددة الاختيارات.
+        for (const section of Object.values(TEMPLATES_BANK[3])) {
+            const idx = section.findIndex(t => t.id === 'g3_even_odd');
+            if (idx >= 0) section.splice(idx, 1);
+        }
+
+        /* ============================================================
+           محرك التوليد: أربعة اختيارات، إجابة وحيدة، ومنع تكرار السؤال
+           ============================================================ */
+        const TemplateEngine = {
+            getTemplates(grade, sectionId, level) {
+                const all = TEMPLATES_BANK[grade]?.[sectionId] || [];
+                const filtered = level ? all.filter(t => t.level === level) : all;
+                return filtered.length ? filtered : all;
+            },
+            makeLegacy(t) {
+                const vars = {};
+                for (const [key,range] of Object.entries(t.variables || {})) {
+                    if (!Array.isArray(range) || !range.length) continue;
+                    vars[key] = range.length===2 && range.every(n=>typeof n==='number')
+                        ? randInt(range[0],range[1]) : pickRandom(range);
+                }
+                // المتغيرات التابعة يجب أن تُحسب قبل بناء نص السؤال.
+                if (['g3_div_2_5','g3_div_6_9','g3_div_story','g3_div_leftover'].includes(t.id)) vars.a = vars.b*vars.q;
+                if (t.id==='g3_missing_factor' || t._fix==='p') vars.p = vars.a*vars.b;
+                if (t.id==='g3_missing_add' || t._fix==='c') vars.c = vars.a+vars.x;
+                if (t._fix==='patternSimple') {
+                    vars.a=vars.start;vars.b=vars.start+vars.step;vars.c=vars.start+2*vars.step;
+                }
+                if (t._fix==='patternDouble') {
+                    vars.a=vars.start;vars.b=2*vars.start;vars.c=4*vars.start;
+                }
+                if (t._fix==='patternMissing') {
+                    vars.a=vars.start;vars.b=vars.start+vars.step;vars.d=vars.start+3*vars.step;
+                }
+                if (t._fix==='equationAdd') vars.b=vars.a+vars.x;
+                if (t._fix==='equationSub') vars.b=vars.x;
+                if (t._fix==='equationMul') vars.p=vars.a*vars.x;
+                if (t.validate && !t.validate(vars)) return null;
+                const correct = t.solve(vars);
+                const distractors = t.generateWrong ? t.generateWrong(correct,vars) : [];
+                let text=t.template;
+                text=text.replace(/\{([a-zA-Z0-9_]+)\}/g,(match,key)=>Object.hasOwn(vars,key)?vars[key]:match);
+                return Q(text,correct,`الإجابة الصحيحة هي ${fmt(correct)}.`,distractors);
+            },
+            normalize(t,raw) {
+                if (!raw || typeof raw.text!=='string') return null;
+                const text=raw.text.trim();
+                if (!text || /\{\w+\}|undefined|NaN|Infinity/.test(text)) return null;
+                let correct=raw.correct;
+                if (typeof correct==='number') {
+                    if (!Number.isFinite(correct)) return null;
+                    correct=Math.round((correct+Number.EPSILON)*10000)/10000;
+                }
+                if (correct===undefined || correct===null) return null;
+                let options=[correct,...(Array.isArray(raw.distractors)?raw.distractors:[])];
+                options=options.filter(x=>x!==null && x!==undefined && (typeof x!=='number'||Number.isFinite(x)))
+                    .map(x=>typeof x==='number' ? fmt(x) : String(x).trim())
+                    .filter(x=>x!=='' && !/undefined|NaN/.test(x));
+                options=[...new Set(options)];
+                const actual=fmt(correct);
+                if (!options.includes(actual)) options.unshift(actual);
+                // المشتتات الرقمية الإضافية تستخدم فروقًا معقولة دون تكرار.
+                if (typeof correct==='number' && options.length<4) {
+                    const base=Math.abs(correct);
+                    let step=Number.isInteger(correct) ? 1 : (base<0.01 ? 0.001 : base<1 ? 0.05 : 0.1);
+                    const increments=[step,-step,2*step,-2*step,3*step,-3*step,
+                        5*step,-5*step,10*step,-10*step,Math.max(1,base*.1),-Math.max(1,base*.1)];
+                    for (const delta of increments) {
+                        const candidate=fmt(Math.round((correct+delta)*10000)/10000);
+                        if (!options.includes(candidate) && !/NaN/.test(candidate)) options.push(candidate);
+                        if (options.length>=4) break;
+                    }
+                }
+                if (options.length<4) return null; // لا تعرض أبدًا خيارات مصطنعة غير منطقية
+                const shuffled=shuffle([actual,...shuffle(options.filter(o=>o!==actual)).slice(0,3)]);
+                const index=shuffled.indexOf(actual);
+                if (index===-1 || new Set(shuffled).size!==4) return null;
+                return {
+                    text,options:shuffled,correct:index,
+                    explanation:String(raw.explanation||`الإجابة الصحيحة هي ${actual}.`),
+                    skill:t.name||'مهارة رياضية',templateId:t.id
+                };
+            },
+            generateQuestion(t) {
+                if (!t) return null;
+                for (let attempt=0;attempt<100;attempt++) {
+                    try {
+                        const raw=t.build ? t.build() : this.makeLegacy(t);
+                        const question=this.normalize(t,raw);
+                        if (question) return question;
+                    } catch(err) { if (attempt===99) console.warn('تعذر توليد قالب:',t.id,err); }
+                }
+                return null;
+            },
+            generateQuestionSet(grade,sectionId,level,count) {
+                const all=TEMPLATES_BANK[grade]?.[sectionId]||[];
+                if (!all.length) return [];
+                const preferred=shuffle(all.filter(t=>t.level===level).slice());
+                const others=shuffle(all.filter(t=>t.level!==level).slice());
+                // تغطية قوالب المستوى المطلوب أولًا ثم تنويع الأسئلة ببقية المستويات.
+                const questions=[];
+                const seenTexts=new Set();
+                const seenQuestionAnswers=new Set();
+                let failedCycles=0;
+                while (questions.length<count && failedCycles<8) {
+                    let added=0;
+                    for (const t of [...shuffle(preferred.slice()),...shuffle(others.slice())]) {
+                        if (questions.length>=count) break;
+                        let candidate=null;
+                        for(let attempt=0;attempt<20;attempt++) {
+                            const q=this.generateQuestion(t);
+                            if (!q) break;
+                            const key=q.text.replace(/\s+/g,' ').trim();
+                            if (!seenTexts.has(key) && !seenQuestionAnswers.has(key+'|'+q.options[q.correct])) {
+                                candidate=q;seenTexts.add(key);seenQuestionAnswers.add(key+'|'+q.options[q.correct]);break;
+                            }
+                        }
+                        if(candidate){questions.push(candidate);added++;}
+                    }
+                    if (!added) failedCycles++; else failedCycles=0;
+                }
+                return shuffle(questions).slice(0,count);
+            }
+        };
+
+        const SECTIONS_INFO = {
+            3: [
+                { id: 'sec3-1', icon: '🧮', label: 'الأعداد والعمليات', desc: 'قيمة منزلية ومقارنة وجمع وطرح' },
+                { id: 'sec3-2', icon: '✖️', label: 'الضرب والقسمة', desc: 'حقائق الضرب والقسمة' },
+                { id: 'sec3-3', icon: '🥧', label: 'الكسور', desc: 'كسور ومقارنة ومكافئة' },
+                { id: 'sec3-4', icon: '🔁', label: 'الأنماط والجبر', desc: 'أنماط عددية ومعادلات' },
+                { id: 'sec3-5', icon: '📐', label: 'الهندسة', desc: 'أشكال ومجسمات وزوايا' },
+                { id: 'sec3-6', icon: '📏', label: 'القياس', desc: 'المحيط والمساحة' },
+                { id: 'sec3-7', icon: '⚖️', label: 'الوحدات', desc: 'الطول، الكتلة، السعة، الزمن' },
+                { id: 'sec3-8', icon: '📊', label: 'البيانات', desc: 'قراءة وجمع ومتوسط' }
+            ],
+            6: [
+                { id: 'sec6-1', icon: '🧮', label: 'الأعداد والعمليات', desc: 'عوامل ومضاعفات' },
+                { id: 'sec6-2', icon: '🥧', label: 'الكسور والنسبة', desc: 'كسور ونسب' },
+                { id: 'sec6-3', icon: '✖️', label: 'الجبر', desc: 'معادلات خطية' },
+                { id: 'sec6-4', icon: '📐', label: 'الهندسة', desc: 'مضلعات ودائرة' },
+                { id: 'sec6-5', icon: '📏', label: 'القياس', desc: 'مساحة وحجم' },
+                { id: 'sec6-6', icon: '📊', label: 'الإحصاء', desc: 'مقاييس واحتمال' }
+            ],
+            9: [
+                { id: 'sec9-1', icon: '🔢', label: 'الأعداد والجذور', desc: 'جذور وحقيقية' },
+                { id: 'sec9-2', icon: '📈', label: 'النسبة والتناسب', desc: 'معدل وحدة' },
+                { id: 'sec9-3', icon: '🧬', label: 'الجبر والمتباينات', desc: 'معادلات ومتباينات' },
+                { id: 'sec9-4', icon: '📐', label: 'الهندسة', desc: 'فيثاغورس ومثلثات' },
+                { id: 'sec9-5', icon: '📏', label: 'القياس', desc: 'أشكال مركبة' },
+                { id: 'sec9-6', icon: '📊', label: 'الإحصاء', desc: 'تشتت واحتمال' }
+            ]
+        };
+
+        // بعض عارِضات ملفات HTML تمنع localStorage بالكامل؛ لا نسمح لذلك بإيقاف اللعبة.
+        const safeStorage = (() => {
+            const cache = new Map();
+            let store = null;
+            try {
+                store = window.localStorage;
+                const probe = '__nafis_storage_test__';
+                store.setItem(probe, 'ok');
+                store.removeItem(probe);
+            } catch (error) { store = null; }
+            return {
+                getItem(key) {
+                    if (store) {
+                        try { return store.getItem(key); } catch (_) { store = null; }
+                    }
+                    return cache.has(key) ? cache.get(key) : null;
+                },
+                setItem(key, value) {
+                    cache.set(key, String(value));
+                    if (store) {
+                        try { store.setItem(key, String(value)); } catch (_) { store = null; }
+                    }
+                },
+                removeItem(key) {
+                    cache.delete(key);
+                    if (store) {
+                        try { store.removeItem(key); } catch (_) { store = null; }
+                    }
+                }
+            };
+        })();
+
+        const state = {
+            grade: 9, selectedSection: null, level: 'easy', rounds: 10,
+            score: 0, correctCount: 0, totalQuestions: 0, streak: 0, bestStreak: 0,
+            answered: false, currentQuestion: null, questionIndex: 0, questions: [],
+            studentName: safeStorage.getItem('nvs-student-name') || '',
+            teacherName: safeStorage.getItem('nvs-teacher-name') || 'أ. نوره الشمري',
+            schoolName: safeStorage.getItem('nvs-school-name') || 'مدرسة الأمل',
+            isLoggedIn: !!safeStorage.getItem('nvs-student-name'),
+        };
+
+        const $ = id => document.getElementById(id);
+        const toastEl = $('toast');
+
+        function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('show');
+            clearTimeout(toastEl._hide);
+            toastEl._hide = setTimeout(() => toastEl.classList.remove('show'), 2200); }
+
+        function showScreen(name) { ['setupScreen', 'playScreen', 'resultScreen'].forEach(id => { const el = $(id); if (el)
+                el.classList.toggle('active', id === name); });
+            window.scrollTo({ top: 0 }); }
+
+        function createConfetti() {
+            const container = $('confettiContainer');
+            container.innerHTML = '';
+            const colors = ['#5b7cfa', '#a78bfa', '#fbbf24', '#4ade80', '#f87171', '#4fc3f7', '#f472b6', '#f59e0b'];
+            for (let i = 0; i < 80; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti-piece';
+                const size = 6 + Math.random() * 10;
+                const left = Math.random() * 100;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const duration = 2.5 + Math.random() * 2.5;
+                const delay = Math.random() * 1.2;
+                const shape = Math.random() > 0.5 ? '50%' : '2px';
+                el.style.cssText = `left:${left}%;width:${size}px;height:${size}px;background:${color};border-radius:${shape};animation-duration:${duration}s;animation-delay:${delay}s;`;
+                container.appendChild(el);
+            }
+            setTimeout(() => { container.innerHTML = ''; }, 6000);
+        }
+
+        let soundEnabled = safeStorage.getItem('nvs-sound') !== 'off';
+        function playTone(kind) {
+            if (!soundEnabled || !window.AudioContext) return;
+            try {
+                const ctx = new(window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.value = kind === 'correct' ? 660 : 190;
+                gain.gain.setValueAtTime(0.10, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+                osc.start(); osc.stop(ctx.currentTime + 0.25);
+            } catch (_) {}
+        }
+        $('soundButton').addEventListener('click', function() { soundEnabled = !soundEnabled;
+            safeStorage.setItem('nvs-sound', soundEnabled ? 'on' : 'off');
+            this.textContent = soundEnabled ? '🔊' : '🔇'; });
+        if (!soundEnabled) $('soundButton').textContent = '🔇';
+
+        function goHome() {
+            const playing = $('playScreen').classList.contains('active');
+            if (playing && !confirm('إنهاء التحدي والعودة إلى الرئيسية؟')) return;
+            $('certModal').hidden = true;
+            $('loginModal').hidden = true;
+            document.body.style.overflow = '';
+            showScreen('setupScreen');
+            state.answered = false;
+        }
+        $('homeBtn').addEventListener('click', goHome);
+
+        function updateLoginUI() {
+            const btn = $('loginBtn'), chip = $('playerChip');
+            if (state.isLoggedIn && state.studentName) {
+                btn.textContent = `👤 ${state.studentName} (خروج)`;
+                btn.classList.add('logged-in');
+                chip.textContent = `🧑‍🎓 ${state.studentName}`;
+            } else {
+                btn.textContent = '👤 دخول';
+                btn.classList.remove('logged-in');
+                chip.textContent = '🧑‍🎓 زائر';
+            }
+        }
+        $('loginBtn').addEventListener('click', () => {
+            if (state.isLoggedIn) {
+                if (confirm('تسجيل الخروج؟')) {
+                    state.isLoggedIn = false; state.studentName = '';
+                    safeStorage.removeItem('nvs-student-name');
+                    updateLoginUI(); toast('تم الخروج.');
+                }
+                return;
+            }
+            $('loginModal').hidden = false;
+            document.body.style.overflow = 'hidden';
+        });
+        $('loginModalClose').addEventListener('click', () => { $('loginModal').hidden = true; document.body.style.overflow = ''; });
+        $('loginCancelBtn').addEventListener('click', () => { $('loginModal').hidden = true; document.body.style.overflow = ''; });
+        $('loginSaveBtn').addEventListener('click', () => {
+            const name = $('studentName').value.trim(), teacher = $('teacherName').value.trim(), school = $('schoolName').value.trim();
+            if (!name || !teacher || !school) { toast('املأ جميع الحقول.'); return; }
+            state.studentName = name; state.teacherName = teacher; state.schoolName = school;
+            state.isLoggedIn = true;
+            safeStorage.setItem('nvs-student-name', name);
+            safeStorage.setItem('nvs-teacher-name', teacher);
+            safeStorage.setItem('nvs-school-name', school);
+            updateLoginUI(); $('loginModal').hidden = true; document.body.style.overflow = '';
+            toast('تم الحفظ!');
+        });
+        updateLoginUI();
+
+        document.querySelectorAll('.level-card').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.level-card').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                state.level = this.dataset.level;
+                toast(`تم اختيار المستوى: ${this.querySelector('strong').textContent}`);
+            });
+        });
+
+        document.querySelectorAll('#roundOptions button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#roundOptions button').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                state.rounds = Number(this.dataset.rounds);
+            });
+        });
+
+        function renderSections(grade) {
+            const sections = SECTIONS_INFO[grade] || [];
+            const grid = $('sectionGrid');
+            grid.innerHTML = '';
+            const msg = $('noSectionsMsg');
+            if (sections.length === 0) { msg.hidden = false; $('startButton').disabled = true; return; }
+            msg.hidden = true;
+            sections.forEach((sec, idx) => {
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = 'section-card' + (idx === 0 ? ' selected' : '');
+                card.dataset.secId = sec.id;
+                card.innerHTML = `<span class="sec-icon">${sec.icon}</span><div class="sec-label">${sec.label}</div><div class="sec-desc">${sec.desc}</div>`;
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.section-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    state.selectedSection = sec;
+                    $('startButton').disabled = false;
+                    $('bankStatus').textContent = `يتوفر ${TEMPLATES_BANK[state.grade]?.[sec.id]?.length || 0} قالبًا متنوعًا في هذا القسم، وتتغير القيم في كل جولة.`;
+                    toast(`اخترت: ${sec.label}`);
+                });
+                grid.appendChild(card);
+            });
+            state.selectedSection = sections[0];
+            $('startButton').disabled = false;
+            $('bankStatus').textContent = `يتوفر ${TEMPLATES_BANK[grade]?.[sections[0].id]?.length || 0} قالبًا متنوعًا في هذا القسم، وتتغير القيم في كل جولة.`;
+        }
+
+        $('gradeGrid').addEventListener('click', (e) => {
+            const card = e.target.closest('.grade-card');
+            if (!card) return;
+            document.querySelectorAll('.grade-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            state.grade = Number(card.dataset.grade);
+            renderSections(state.grade);
+            state.score = 0; state.correctCount = 0; state.streak = 0; state.bestStreak = 0;
+            $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ / ٠'; $('streakValue').textContent = '٠';
+            toast(`تم اختيار ${card.textContent.trim()}`);
+        });
+
+        $('startButton').addEventListener('click', () => {
+            if (!state.selectedSection) { toast('اختر قسماً أولاً.'); return; }
+
+            // ✅ استخدام الدالة الجديدة: توليد مجموعة بدون تكرار نفس الفكرة
+            const questions = TemplateEngine.generateQuestionSet(
+                state.grade,
+                state.selectedSection.id,
+                state.level,
+                state.rounds
+            );
+
+            if (questions.length === 0) { toast('تعذر توليد أسئلة صالحة لهذا القسم.'); return; }
+            if (questions.length < state.rounds) toast(`توفر ${questions.length} سؤالًا مختلفًا دون تكرار.`);
+            state.questions = questions;
+            state.totalQuestions = questions.length;
+            state.questionIndex = 0; state.score = 0; state.correctCount = 0; state.streak = 0; state.bestStreak = 0; state.answered = false;
+            $('scoreValue').textContent = '٠'; $('correctValue').textContent = `٠ / ${state.totalQuestions}`; $('streakValue').textContent = '٠';
+            $('levelLabel').textContent = `${state.selectedSection.icon} ${state.selectedSection.label}`;
+            showScreen('playScreen');
+            renderQuestion();
+        });
+
+        function renderQuestion() {
+            const q = state.questions[state.questionIndex];
+            if (!q) { finishGame(); return; }
+            state.currentQuestion = q;
+            state.answered = false;
+            $('questionCounter').textContent = `السؤال ${state.questionIndex + 1} من ${state.totalQuestions}`;
+            $('questionSkill').textContent = q.skill || state.selectedSection.label;
+            $('questionPoints').textContent = '+١٠ نقاط';
+            $('questionText').textContent = q.text;
+            $('feedback').hidden = true;
+            $('feedback').classList.remove('wrong');
+            const grid = $('answerGrid');
+            grid.innerHTML = '';
+            q.options.forEach((label, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'answer-button';
+                const key = document.createElement('span'); key.className = 'answer-key'; key.textContent = 'أبجد'[idx] || String(idx + 1);
+                const answerText = document.createElement('span'); answerText.textContent = label;
+                btn.append(key, answerText);
+                btn.dataset.optIdx = idx;
+                btn.addEventListener('click', () => handleAnswer(idx, btn));
+                grid.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIdx, targetBtn) {
+            if (state.answered) return;
+            state.answered = true;
+            const q = state.currentQuestion;
+            const buttons = $('answerGrid').querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+            let isCorrect = false;
+            buttons.forEach((b, i) => {
+                const idx = Number(b.dataset.optIdx);
+                if (idx === q.correct) b.classList.add('correct');
+                if (idx === selectedIdx && idx === q.correct) isCorrect = true;
+                if (idx === selectedIdx && idx !== q.correct) b.classList.add('wrong');
+            });
+            if (isCorrect) { playTone('correct'); } else { playTone('wrong'); }
+            const fb = $('feedback');
+            if (isCorrect) {
+                state.correctCount += 1; state.streak += 1;
+                if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+                state.score += 10;
+                $('feedbackIcon').textContent = '✅';
+                $('feedbackTitle').textContent = state.streak >= 2 ? `🔥 سلسلة ${state.streak}!` : 'إجابة صحيحة!';
+                fb.classList.remove('wrong');
+            } else {
+                state.streak = 0;
+                $('feedbackIcon').textContent = '❌';
+                $('feedbackTitle').textContent = 'إجابة خاطئة';
+                fb.classList.add('wrong');
+            }
+            $('scoreValue').textContent = state.score;
+            $('correctValue').textContent = `${state.correctCount} / ${state.totalQuestions}`;
+            $('streakValue').textContent = state.streak;
+            $('feedbackExplanation').textContent = q.explanation || '';
+            fb.hidden = false;
+            if (state.questionIndex + 1 >= state.totalQuestions) { $('nextButton').textContent = '📊 عرض النتيجة'; }
+            else { $('nextButton').textContent = '🔄 السؤال التالي'; }
+        }
+
+        $('nextButton').addEventListener('click', () => {
+            if (!state.answered) return;
+            state.questionIndex += 1;
+            if (state.questionIndex >= state.totalQuestions) { finishGame(); } else { renderQuestion(); }
+        });
+
+        function finishGame() {
+            const accuracy = state.totalQuestions > 0 ? Math.round((state.correctCount / state.totalQuestions) * 100) : 0;
+            const levelMap = { easy: 'بسيط', medium: 'متوسط', hard: 'متقدم' };
+            const badge = accuracy >= 90 ? '🏆' : accuracy >= 70 ? '⭐' : '🚀';
+            const title = accuracy >= 90 ? 'ممتاز! إتقان رائع' : accuracy >= 70 ? 'أحسنتِ! أداء جيد' : 'جميل، واصلي التمرين!';
+            $('finalScore').textContent = state.score;
+            $('correctResult').textContent = `${state.correctCount} / ${state.totalQuestions}`;
+            $('accuracyResult').textContent = `${accuracy}%`;
+            $('streakResult').textContent = state.bestStreak;
+            $('levelResult').textContent = levelMap[state.level] || '—';
+            $('resultBadge').textContent = badge;
+            $('resultTitle').textContent = title;
+            $('resultMessage').textContent = accuracy >= 90 ? 'لقد أتقنتِ هذا القسم بنجاح!' : accuracy >= 70 ? 'أداؤك جيد، استمري في التمرين.' : 'التكرار هو مفتاح الإتقان، حاولي مرة أخرى.';
+            showScreen('resultScreen');
+            createConfetti();
+        }
+
+        function showCertificate() {
+            const gradeMap = { 3: 'ثالث ابتدائي', 6: 'سادس ابتدائي', 9: 'ثالث متوسط' };
+            const levelMap = { easy: 'بسيط', medium: 'متوسط', hard: 'متقدم' };
+            const accuracy = state.totalQuestions > 0 ? Math.round((state.correctCount / state.totalQuestions) * 100) : 0;
+            document.getElementById('certStudentName').textContent = state.studentName || 'الطالبة';
+            document.getElementById('certScore').textContent = `${state.correctCount} / ${state.totalQuestions}`;
+            document.getElementById('certPercentage').textContent = `${accuracy}%`;
+            document.getElementById('certLevel').textContent = levelMap[state.level] || '—';
+            document.getElementById('certGrade').textContent = gradeMap[state.grade] || '—';
+            document.getElementById('certSection').textContent = state.selectedSection?.label || '—';
+            document.getElementById('certTeacher').textContent = state.teacherName || 'أ. نوره الشمري';
+            document.getElementById('certSchool').textContent = state.schoolName || 'اسم المدرسة';
+            const now = new Date();
+            const hijri = now.toLocaleDateString('ar-SA-u-nu-arab', { year: 'numeric', month: 'numeric', day: 'numeric' });
+            document.getElementById('certDate').textContent = `صدرت بتاريخ ${hijri} هـ`;
+            $('certModal').hidden = false;
+            document.body.style.overflow = 'hidden';
+        }
+
+        document.getElementById('certPrintBtn').addEventListener('click', () => window.print());
+        document.getElementById('certPdfBtn').addEventListener('click', function() {
+            // html2pdf مكتبة اختيارية عبر الإنترنت؛ عند عدم توفرها استخدمي "حفظ كـ PDF" من نافذة الطباعة.
+            if (typeof window.html2pdf !== 'function') {
+                toast('اختاري «حفظ كـ PDF» من نافذة الطباعة.');
+                window.print();
+                return;
+            }
+            const element = $('certificateContainer');
+            const opt = { margin: 0.25, filename: 'شهادة_إتقان_نافس.pdf', image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, letterRendering: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } };
+            try {
+                Promise.resolve(window.html2pdf().set(opt).from(element).save()).catch(() => window.print());
+            } catch (_) { window.print(); }
+        });
+        document.getElementById('certHomeBtn').addEventListener('click', goHome);
+
+        $('showCertButton').addEventListener('click', showCertificate);
+
+        $('replayButton').addEventListener('click', () => {
+            showScreen('setupScreen');
+            state.score = 0; state.correctCount = 0; state.streak = 0; state.bestStreak = 0; state.questionIndex = 0; state.questions = [];
+            $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ / ٠'; $('streakValue').textContent = '٠';
+        });
+
+        $('backToHomeButton').addEventListener('click', () => {
+            showScreen('setupScreen');
+            state.score = 0; state.correctCount = 0; state.streak = 0; state.bestStreak = 0; state.questionIndex = 0; state.questions = [];
+            $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ / ٠'; $('streakValue').textContent = '٠';
+        });
+
+        $('quitButton').addEventListener('click', () => {
+            if (confirm('إنهاء الجولة والعودة؟')) {
+                showScreen('setupScreen');
+                state.score = 0; state.correctCount = 0; state.streak = 0; state.bestStreak = 0; state.questionIndex = 0; state.questions = [];
+                $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ / ٠'; $('streakValue').textContent = '٠';
+            }
+        });
+
+        renderSections(9);
+        document.querySelector('.grade-card[data-grade="9"]')?.classList.add('selected');
+        console.log('✅ تحدي نافس — محرك قوالب اختيار من متعدد مع منع تكرار نص السؤال');
+    </script>
+</body>
+</html>
