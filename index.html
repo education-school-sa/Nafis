@@ -1035,6 +1035,36 @@
         const choose = a => a[r(0,a.length-1)];
         const gcd = (a,b) => b ? gcd(b,a%b) : a;
         const fmt = x => typeof x === 'number' ? (Number.isInteger(x) ? String(x) : String(Math.round(x*10000)/10000)) : String(x);
+        // عرض رياضي عربي موحّد: لا نُغيّر أرقام الحساب داخل المحرك بل النص المعروض فقط.
+        const ARABIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+        function arabizeMath(value) {
+            return String(value)
+                // عند وجود مسافات حول الشرطة المائلة فهي علامة قسمة، دون مسافات هي كسر.
+                .replace(/([0-9٠-٩])\s+\/\s+([0-9٠-٩])/g, '$1 ÷ $2')
+                .replace(/([0-9٠-٩])\/([0-9٠-٩])/g, '$1⁄$2')
+                .replace(/([0-9٠-٩])\.([0-9٠-٩])/g, '$1٫$2')
+                .replace(/([0-9]),\s+(?=[0-9])/g, '$1، ')
+                .replace(/([0-9]),(?=[0-9]{3}\b)/g, '$1٬')
+                .replace(/([0-9])\s+-\s+([0-9])/g, '$1 − $2')
+                .replace(/(^|[\s(=])-(?=[0-9])/g, '$1−')
+                .replace(/\*/g, '×')
+                .replace(/%/g, '٪')
+                .replace(/\bx\b/g, 'س')
+                .replace(/[0-9]/g, digit => ARABIC_DIGITS[Number(digit)]);
+        }
+        function arabizePageText() {
+            // الأرقام الثابتة في الصفحة (ترويسة، أزرار، شهادة...) دون المساس بالأكواد أو الشعارات.
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            while (walker.nextNode()) {
+                const node = walker.currentNode;
+                if (node.parentElement?.closest('script, style, svg')) continue;
+                const localized = arabizeMath(node.nodeValue);
+                if (localized !== node.nodeValue) nodes.push([node, localized]);
+            }
+            nodes.forEach(([node, localized]) => { node.nodeValue = localized; });
+        }
+        const arabicCount = (correct,total) => `${arabizeMath(correct)} من ${arabizeMath(total)}`;
         const Q = (text,correct,explanation='',distractors=[]) => ({text,correct,distractors,explanation:explanation || `الإجابة الصحيحة: ${fmt(correct)}.`});
         function register(grade, section, level, id, name, build) {
             TEMPLATES_BANK[grade][section].push({id,level,name,build});
@@ -1323,8 +1353,8 @@
                 const index=shuffled.indexOf(actual);
                 if (index===-1 || new Set(shuffled).size!==4) return null;
                 return {
-                    text,options:shuffled,correct:index,
-                    explanation:String(raw.explanation||`الإجابة الصحيحة هي ${actual}.`),
+                    text:arabizeMath(text),options:shuffled.map(arabizeMath),correct:index,
+                    explanation:arabizeMath(raw.explanation||`الإجابة الصحيحة هي ${actual}.`),
                     skill:t.name||'مهارة رياضية',templateId:t.id
                 };
             },
@@ -1576,14 +1606,14 @@
                     card.classList.add('selected');
                     state.selectedSection = sec;
                     $('startButton').disabled = false;
-                    $('bankStatus').textContent = `يتوفر ${TEMPLATES_BANK[state.grade]?.[sec.id]?.length || 0} قالبًا متنوعًا في هذا القسم، وتتغير القيم في كل جولة.`;
+                    $('bankStatus').textContent = arabizeMath(`يتوفر ${TEMPLATES_BANK[state.grade]?.[sec.id]?.length || 0} قالبًا متنوعًا في هذا القسم، وتتغير القيم في كل جولة.`);
                     toast(`اخترت: ${sec.label}`);
                 });
                 grid.appendChild(card);
             });
             state.selectedSection = sections[0];
             $('startButton').disabled = false;
-            $('bankStatus').textContent = `يتوفر ${TEMPLATES_BANK[grade]?.[sections[0].id]?.length || 0} قالبًا متنوعًا في هذا القسم، وتتغير القيم في كل جولة.`;
+            $('bankStatus').textContent = arabizeMath(`يتوفر ${TEMPLATES_BANK[grade]?.[sections[0].id]?.length || 0} قالبًا متنوعًا في هذا القسم، وتتغير القيم في كل جولة.`);
         }
 
         $('gradeGrid').addEventListener('click', (e) => {
@@ -1594,7 +1624,7 @@
             state.grade = Number(card.dataset.grade);
             renderSections(state.grade);
             state.score = 0; state.correctCount = 0; state.streak = 0; state.bestStreak = 0;
-            $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ / ٠'; $('streakValue').textContent = '٠';
+            $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ من ٠'; $('streakValue').textContent = '٠';
             toast(`تم اختيار ${card.textContent.trim()}`);
         });
 
@@ -1610,11 +1640,11 @@
             );
 
             if (questions.length === 0) { toast('تعذر توليد أسئلة صالحة لهذا القسم.'); return; }
-            if (questions.length < state.rounds) toast(`توفر ${questions.length} سؤالًا مختلفًا دون تكرار.`);
+            if (questions.length < state.rounds) toast(arabizeMath(`توفر ${questions.length} سؤالًا مختلفًا دون تكرار.`));
             state.questions = questions;
             state.totalQuestions = questions.length;
             state.questionIndex = 0; state.score = 0; state.correctCount = 0; state.streak = 0; state.bestStreak = 0; state.answered = false;
-            $('scoreValue').textContent = '٠'; $('correctValue').textContent = `٠ / ${state.totalQuestions}`; $('streakValue').textContent = '٠';
+            $('scoreValue').textContent = '٠'; $('correctValue').textContent = arabicCount(0, state.totalQuestions); $('streakValue').textContent = '٠';
             $('levelLabel').textContent = `${state.selectedSection.icon} ${state.selectedSection.label}`;
             showScreen('playScreen');
             renderQuestion();
@@ -1625,10 +1655,10 @@
             if (!q) { finishGame(); return; }
             state.currentQuestion = q;
             state.answered = false;
-            $('questionCounter').textContent = `السؤال ${state.questionIndex + 1} من ${state.totalQuestions}`;
+            $('questionCounter').textContent = arabizeMath(`السؤال ${state.questionIndex + 1} من ${state.totalQuestions}`);
             $('questionSkill').textContent = q.skill || state.selectedSection.label;
             $('questionPoints').textContent = '+١٠ نقاط';
-            $('questionText').textContent = q.text;
+            $('questionText').textContent = arabizeMath(q.text);
             $('feedback').hidden = true;
             $('feedback').classList.remove('wrong');
             const grid = $('answerGrid');
@@ -1637,8 +1667,10 @@
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'answer-button';
-                const key = document.createElement('span'); key.className = 'answer-key'; key.textContent = 'أبجد'[idx] || String(idx + 1);
-                const answerText = document.createElement('span'); answerText.textContent = label;
+                const key = document.createElement('span'); key.className = 'answer-key'; key.textContent = 'أبجد'[idx] || arabizeMath(idx + 1);
+                const answerText = document.createElement('span'); answerText.textContent = arabizeMath(label);
+                // تُقرأ الكسور والمعادلات الرقمية من اليسار إلى اليمين مع بقاء الواجهة عربية.
+                if (!/[ء-ي]/.test(label)) { answerText.dir = 'ltr'; answerText.style.unicodeBidi = 'isolate'; }
                 btn.append(key, answerText);
                 btn.dataset.optIdx = idx;
                 btn.addEventListener('click', () => handleAnswer(idx, btn));
@@ -1666,7 +1698,7 @@
                 if (state.streak > state.bestStreak) state.bestStreak = state.streak;
                 state.score += 10;
                 $('feedbackIcon').textContent = '✅';
-                $('feedbackTitle').textContent = state.streak >= 2 ? `🔥 سلسلة ${state.streak}!` : 'إجابة صحيحة!';
+                $('feedbackTitle').textContent = state.streak >= 2 ? arabizeMath(`🔥 سلسلة ${state.streak}!`) : 'إجابة صحيحة!';
                 fb.classList.remove('wrong');
             } else {
                 state.streak = 0;
@@ -1674,10 +1706,10 @@
                 $('feedbackTitle').textContent = 'إجابة خاطئة';
                 fb.classList.add('wrong');
             }
-            $('scoreValue').textContent = state.score;
-            $('correctValue').textContent = `${state.correctCount} / ${state.totalQuestions}`;
-            $('streakValue').textContent = state.streak;
-            $('feedbackExplanation').textContent = q.explanation || '';
+            $('scoreValue').textContent = arabizeMath(state.score);
+            $('correctValue').textContent = arabicCount(state.correctCount, state.totalQuestions);
+            $('streakValue').textContent = arabizeMath(state.streak);
+            $('feedbackExplanation').textContent = arabizeMath(q.explanation || '');
             fb.hidden = false;
             if (state.questionIndex + 1 >= state.totalQuestions) { $('nextButton').textContent = '📊 عرض النتيجة'; }
             else { $('nextButton').textContent = '🔄 السؤال التالي'; }
@@ -1694,10 +1726,10 @@
             const levelMap = { easy: 'بسيط', medium: 'متوسط', hard: 'متقدم' };
             const badge = accuracy >= 90 ? '🏆' : accuracy >= 70 ? '⭐' : '🚀';
             const title = accuracy >= 90 ? 'ممتاز! إتقان رائع' : accuracy >= 70 ? 'أحسنتِ! أداء جيد' : 'جميل، واصلي التمرين!';
-            $('finalScore').textContent = state.score;
-            $('correctResult').textContent = `${state.correctCount} / ${state.totalQuestions}`;
-            $('accuracyResult').textContent = `${accuracy}%`;
-            $('streakResult').textContent = state.bestStreak;
+            $('finalScore').textContent = arabizeMath(state.score);
+            $('correctResult').textContent = arabicCount(state.correctCount, state.totalQuestions);
+            $('accuracyResult').textContent = arabizeMath(`${accuracy}%`);
+            $('streakResult').textContent = arabizeMath(state.bestStreak);
             $('levelResult').textContent = levelMap[state.level] || '—';
             $('resultBadge').textContent = badge;
             $('resultTitle').textContent = title;
@@ -1711,8 +1743,8 @@
             const levelMap = { easy: 'بسيط', medium: 'متوسط', hard: 'متقدم' };
             const accuracy = state.totalQuestions > 0 ? Math.round((state.correctCount / state.totalQuestions) * 100) : 0;
             document.getElementById('certStudentName').textContent = state.studentName || 'الطالبة';
-            document.getElementById('certScore').textContent = `${state.correctCount} / ${state.totalQuestions}`;
-            document.getElementById('certPercentage').textContent = `${accuracy}%`;
+            document.getElementById('certScore').textContent = arabicCount(state.correctCount, state.totalQuestions);
+            document.getElementById('certPercentage').textContent = arabizeMath(`${accuracy}%`);
             document.getElementById('certLevel').textContent = levelMap[state.level] || '—';
             document.getElementById('certGrade').textContent = gradeMap[state.grade] || '—';
             document.getElementById('certSection').textContent = state.selectedSection?.label || '—';
@@ -1747,23 +1779,24 @@
         $('replayButton').addEventListener('click', () => {
             showScreen('setupScreen');
             state.score = 0; state.correctCount = 0; state.streak = 0; state.bestStreak = 0; state.questionIndex = 0; state.questions = [];
-            $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ / ٠'; $('streakValue').textContent = '٠';
+            $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ من ٠'; $('streakValue').textContent = '٠';
         });
 
         $('backToHomeButton').addEventListener('click', () => {
             showScreen('setupScreen');
             state.score = 0; state.correctCount = 0; state.streak = 0; state.bestStreak = 0; state.questionIndex = 0; state.questions = [];
-            $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ / ٠'; $('streakValue').textContent = '٠';
+            $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ من ٠'; $('streakValue').textContent = '٠';
         });
 
         $('quitButton').addEventListener('click', () => {
             if (confirm('إنهاء الجولة والعودة؟')) {
                 showScreen('setupScreen');
                 state.score = 0; state.correctCount = 0; state.streak = 0; state.bestStreak = 0; state.questionIndex = 0; state.questions = [];
-                $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ / ٠'; $('streakValue').textContent = '٠';
+                $('scoreValue').textContent = '٠'; $('correctValue').textContent = '٠ من ٠'; $('streakValue').textContent = '٠';
             }
         });
 
+        arabizePageText();
         renderSections(9);
         document.querySelector('.grade-card[data-grade="9"]')?.classList.add('selected');
         console.log('✅ تحدي نافس — محرك قوالب اختيار من متعدد مع منع تكرار نص السؤال');
